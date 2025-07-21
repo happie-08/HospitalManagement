@@ -1,0 +1,77 @@
+﻿@page
+@model HospitalManagement.Pages.EditProfileModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<h2 class="mb-4">Edit Profile</h2>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success">
+        @Model.StatusMessage
+    </div>
+}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Profile Image</label><br />
+        <img src="~/uploads/@Model.Input.ExistingImage" alt="Profile Image"
+             style="width:100px;height:100px;border-radius:50%;" /><br />
+        <input asp-for="Input.ProfileImage" type="file" class="form-control mt-2" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Input.Name"></label>
+        <input asp-for="Input.Name" class="form-control" />
+        <span asp-validation-for="Input.Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Input.PhoneNumber"></label>
+        <input asp-for="Input.PhoneNumber" class="form-control" />
+        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Input.Address"></label>
+        <textarea asp-for="Input.Address" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Gender</label><br />
+        @foreach (var gender in new[] { "Male", "Female" })
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="Input.Gender" value="@gender"
+                       checked="@(Model.Input.Gender == gender)" />
+                <label class="form-check-label">@gender</label>
+            </div>
+        }
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Input.DateOfBirth"></label>
+        <input asp-for="Input.DateOfBirth" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label>Hobbies</label><br />
+        @foreach (var hobby in new[] { "Gaming", "Music", "Coding", "Sports" })
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="Input.Hobby" value="@hobby"
+                       @(Model.Input.Hobby.Contains(hobby) ? "checked" : "") />
+                <label class="form-check-label">@hobby</label>
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        Save Changes
+    </button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

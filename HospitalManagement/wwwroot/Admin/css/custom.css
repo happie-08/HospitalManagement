@@ -1,0 +1,8 @@
+﻿.nav-header {
+    background-color: red !important; /* Light gray */
+    color: #333 !important;
+}
+
+    .nav-header a {
+        color: #333 !important;
+    }

@@ -1,0 +1,61 @@
+﻿@{
+    var pageTitle = ViewData["PageTitle"] as string ?? "Page Title";
+    var breadcrumbs = ViewData["Breadcrumbs"] as List<(string Label, string? Url)>
+                      ?? new List<(string Label, string? Url)>();
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2 align-items-center">
+            <!-- Left: Page Title -->
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">@pageTitle</h1>
+            </div>
+            <!-- Right: Breadcrumb -->
+            <div class="col-sm-6 text-right">
+                <ol class="breadcrumb float-right mb-0">
+                    @for (int i = 0; i < breadcrumbs.Count; i++)
+                    {
+                        var crumb = breadcrumbs[i];
+                        bool isLast = i == breadcrumbs.Count - 1;
+
+                        <li class="breadcrumb-item @(isLast ? "active" : "")">
+                            @if (!isLast && !string.IsNullOrEmpty(crumb.Url))
+                            {
+                                <a href="@crumb.Url">@crumb.Label</a>
+                            }
+                            else
+                            {
+                                <span class="fw-bold">@crumb.Label</span>
+                            }
+                        </li>
+                    }
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .breadcrumb a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+        .breadcrumb a:hover {
+            color: #1ab394;
+            text-decoration: underline;
+        }
+
+    .breadcrumb-item.active span {
+        color: #1ab394;
+        font-weight: 600;
+    }
+
+    .content-header {
+        border-bottom: 1px solid #e7eaec;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+</style>

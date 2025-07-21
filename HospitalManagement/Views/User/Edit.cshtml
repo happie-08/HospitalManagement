@@ -1,0 +1,135 @@
+﻿@model HospitalManagement.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var breadcrumbs = new List<(string Label, string? Url)> {
+        ("Home", "/Dashboard"),
+        ("Users List", "/User"),
+        ("Edit User", null)
+    };
+    ViewData["PageTitle"] = "Edit User";
+    ViewData["Breadcrumbs"] = breadcrumbs;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/Admin/css/User.css" />
+}
+
+@section PageHeader {
+    @await Html.PartialAsync("_PageHeader")
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow border border-primary">
+                    <div class="card-body">
+                        <form asp-action="Edit" method="post" enctype="multipart/form-data" novalidate>
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Id)
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                            <!-- Profile Image -->
+                            <div class="text-center mb-4">
+                                <img src="~/uploads/@(Model.Image ?? "user.png")" class="profile-img" id="previewImg" />
+                                <div>
+                                    <label class="btn-upload">
+                                        <input type="file" name="ImageFile" id="ImageFile" accept="image/*" hidden />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Full Name <span class="text-danger">*</span></label>
+                                    <input asp-for="Name" class="form-control" required />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Phone Number</label>
+                                    <input asp-for="PhoneNumber" class="form-control" pattern="\d{10}" title="Enter 10-digit phone number" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Email <span class="text-danger">*</span></label>
+                                    <input asp-for="Email" class="form-control" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Username <span class="text-danger">*</span></label>
+                                    <input asp-for="UserName" class="form-control" required />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Address</label>
+                                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Date of Birth</label>
+                                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-row ">
+                                <div class="form-group col-md-6">
+                                    <label>Gender</label>
+                                    <div class="gender-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="Gender" value="Male" @(Model.Gender == "Male" ? "checked" : "") />
+                                            <label class="form-check-label">Male</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="Gender" value="Female" @(Model.Gender == "Female" ? "checked" : "") />
+                                            <label class="form-check-label">Female</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+
+                            <div class="form-group col-md-12">
+                                <label>Hobbies</label>
+                                <div class="hobby-group">
+                                    @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @(Model.Hobby?.Contains(hobby) == true ? "checked" : "") />
+                                            <label class="form-check-label">@hobby</label>
+                                        </div>
+                                    }
+                                </div> <!-- Fixed closing tag -->
+                            </div>
+
+
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary ml-2">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("ImageFile").addEventListener("change", function () {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("previewImg").src = e.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+    </script>
+}
