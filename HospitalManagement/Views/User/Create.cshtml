@@ -2,134 +2,225 @@
 @{
     ViewData["Title"] = "Add User";
     Layout = "~/Views/Shared/_NavbarLayout.cshtml";
-    var breadcrumbs = new List<(string Label, string? Url)> {
-        ("Home", "/Dashboard"),
-        ("Users List", "/User"),
-        ("Add User", null)
-    };
-    ViewData["PageTitle"] = "Add User";
-    ViewData["Breadcrumbs"] = breadcrumbs;
 }
+
 @section Styles {
-    <link rel="stylesheet" href="~/Admin/css/User.css" />
+    <style>
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-y: auto;
+            background-color: #f1f4f6;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1ab394;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-upload {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            color: #fff;
+            background-color: #1ab394;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-upload:hover {
+                background-color: #17a085;
+            }
+
+        .form-control {
+            border-radius: 0.5rem;
+            box-shadow: none;
+        }
+
+        .form-check-inline {
+            margin-right: 20px;
+        }
+
+        .card {
+            margin: 2rem auto;
+            max-width: 1500px;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #1ab394, #16a085);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 20px;
+            padding: 5px 15px;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-success {
+            background-color: #1ab394;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-success:hover {
+                background-color: #17a085;
+            }
+
+        .content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+    </style>
 }
 
-@section PageHeader {
-    @await Html.PartialAsync("_PageHeader")
-}
-
-<section class="content">
+<section class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow border border-primary">
-                    <div class="card-body">
-                        @if (ViewBag.RequiredError != null)
-                        {
-                            <div class="alert alert-danger">
-                                <strong>@ViewBag.RequiredError</strong>
-                            </div>
-                        }
-
-                        <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
-                            @Html.AntiForgeryToken()
-                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-                            <!-- Profile Image -->
-                            <div class="text-center mb-4">
-                                <img src="~/uploads/user.png" class="profile-img" />
-                                <div>
-                                    <label class="btn-upload">
-                                        <input type="file" name="ImageFile" data-val="false" hidden />
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label>Full Name <span class="text-danger">*</span></label>
-                                    <input asp-for="Name" class="form-control" required />
-                                    <span asp-validation-for="Name" class="text-danger"></span>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>Phone Number</label>
-                                    <input asp-for="PhoneNumber" class="form-control" pattern="\d{10}" title="Enter 10-digit phone number" />
-                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label>Email <span class="text-danger">*</span></label>
-                                    <input asp-for="Email" class="form-control" required />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>Username <span class="text-danger">*</span></label>
-                                    <input asp-for="UserName" class="form-control" required />
-                                    <span asp-validation-for="UserName" class="text-danger"></span>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label>Password <span class="text-danger">*</span></label>
-                                    <input type="password" name="Password" class="form-control" required minlength="6" />
-                                    <span class="text-danger">@Html.ValidationMessage("Password")</span>
-                                </div>
-
-                                <div class="form-group col-md-6">
-                                    <label>Address</label>
-                                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label>Date of Birth</label>
-                                    <input asp-for="DateOfBirth" type="date" class="form-control" />
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>Gender</label>
-                                    <div class="gender-group">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" asp-for="Gender" value="Male" checked />
-                                            <label class="form-check-label">Male</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" asp-for="Gender" value="Female" />
-                                            <label class="form-check-label">Female</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-12">
-                                <label>Hobbies</label>
-                                <div class="hobby-group">
-                                    @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
-                                    {
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @(Model.Hobby?.Contains(hobby) == true ? "checked" : "") />
-                                            <label class="form-check-label">@hobby</label>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="form-group text-center">
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-plus"></i> Create User
-                                </button>
-                                <a asp-action="Index" class="btn btn-secondary ml-2">Cancel</a>
-                            </div>
-                        </form>
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Add New User</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.RequiredError != null)
+                {
+                    <div class="alert alert-danger">
+                        <strong>@ViewBag.RequiredError</strong>
                     </div>
-                </div>
+                }
+
+                <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="text-center">
+                        <img src="~/uploads/user.png" id="profilePreview" class="profile-img" alt="Profile Image" />
+                        <label class="btn-upload">
+                            <i class="fas fa-upload"></i> Upload Image
+                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(event)" />
+                        </label>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-3">
+                            <label>Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter full name" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="10-digit number" pattern="\d{10}" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Username <span class="text-danger">*</span></label>
+                            <input asp-for="UserName" class="form-control" placeholder="Choose username" required />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Password <span class="text-danger">*</span></label>
+                            <input type="password" name="Password" class="form-control" placeholder="Minimum 6 characters" required minlength="6" />
+                            <span class="text-danger">@Html.ValidationMessage("Password")</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter address"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Date of Birth</label>
+                            <input asp-for="DateOfBirth" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Gender</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="Gender" value="Male" checked />
+                                    <label class="form-check-label">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="Gender" value="Female" />
+                                    <label class="form-check-label">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Hobbies</label>
+                        <div>
+                            @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
+                            {
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @(Model.Hobby?.Contains(hobby) == true ? "checked" : "") />
+                                    <label class="form-check-label">@hobby</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="fas fa-plus"></i> Create User
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary rounded-pill px-4 ml-2">Cancel</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </section>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('profilePreview').src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 }
