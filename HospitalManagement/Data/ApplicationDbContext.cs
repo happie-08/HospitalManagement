@@ -10,5 +10,7 @@ namespace HospitalManagement.Data
             : base(options)
         {
         }
+        public DbSet<Role> Roles { get; set; }
+
     }
 }
