@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HospitalManagement.Models
 {
@@ -13,5 +14,9 @@ namespace HospitalManagement.Models
         public DateTime? DateOfBirth { get; set; }
         public string? Image { get; set; }
         public string? Address { get; set; }
+        [Display(Name = "Role")]
+        public int? RoleId { get; set; } // FK column
+        [ForeignKey("RoleId")]
+        public Role? Role { get; set; }
     }
 }

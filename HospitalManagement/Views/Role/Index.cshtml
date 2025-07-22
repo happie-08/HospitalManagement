@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Users List";
+    ViewData["Title"] = "Roles List";
     Layout = "~/Views/Shared/_NavbarLayout.cshtml";
 }
 
@@ -11,7 +11,7 @@
 <div class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
     <div class="page-inner">
         <div class="page-header">
-            <h4 class="page-title">Users List</h4>
+            <h4 class="page-title">Roles List</h4>
             <ul class="breadcrumbs">
                 <li class="nav-home">
                     <a asp-controller="Dashboard" asp-action="Index">
@@ -19,7 +19,7 @@
                     </a>
                 </li>
                 <li class="separator"><i class="fas fa-chevron-right"></i></li>
-                <li class="nav-item"><a href="#">Users</a></li>
+                <li class="nav-item"><a href="#">Roles</a></li>
             </ul>
         </div>
 
@@ -27,24 +27,21 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0">Users Table with Export Options</h4>
-                        <a href="/User/Create" class="btn btn-success btn-sm">
-                            <i class="fas fa-user-plus"></i> Add User
+                        <h4 class="card-title mb-0">Roles Table with Export Options</h4>
+                        <a href="/Role/Create" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus"></i> Add Role
                         </a>
                     </div>
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="userTable" class="table table-striped table-hover">
+                            <table id="roleTable" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Profile</th>
-                                        <th>Email / Phone</th>
-                                        <th>Username</th>
-                                        <th style="display:none">Address</th>
-                                        <th>DOB / Gender</th>
-                                        <th>Hobby</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Active</th>
                                         <th style="width: 150px;">Actions</th>
                                     </tr>
                                 </thead>
@@ -97,9 +94,9 @@
 
     <script>
         $(document).ready(function () {
-            var table = $('#userTable').DataTable({
+            var table = $('#roleTable').DataTable({
                 ajax: {
-                    url: '/User/GetUsers',
+                    url: '/Role/GetRoles', // Your API endpoint
                     type: 'GET',
                     dataSrc: 'data'
                 },
@@ -110,33 +107,20 @@
                             return meta.row + 1;
                         }
                     },
+                    { data: 'name' },
+                    { data: 'description' },
                     {
-                        data: 'image',
+                        data: 'active',
                         render: function (data) {
-                            return `<img src="/uploads/${data}" class="img-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='/images/user.png'" />`;
+                            return data ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
                         }
                     },
-                    {
-                        data: 'email',
-                        render: function (data, type, row) {
-                            return `<strong>${data}</strong><br/><small class="text-muted">${row.phoneNumber ?? '-'}</small>`;
-                        }
-                    },
-                    { data: 'userName' },
-                    { data: 'address', visible: false },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            return `${row.dateOfBirth} / ${row.gender ?? '-'}`;
-                        }
-                    },
-                    { data: 'hobby' },
                     {
                         data: 'id',
                         render: function (data, type, row) {
                             return `
-                                <a href="/User/Edit/${data}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser('${data}', '${row.userName}')">
+                                <a href="/Role/Edit/${data}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteRole('${data}', '${row.name}')">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             `;
@@ -151,8 +135,8 @@
                 buttons: [
                     { extend: 'copy' },
                     { extend: 'csv' },
-                    { extend: 'excel', title: 'UsersList' },
-                    { extend: 'pdf', title: 'UsersList' },
+                    { extend: 'excel', title: 'RolesList' },
+                    { extend: 'pdf', title: 'RolesList' },
                     {
                         extend: 'print',
                         customize: function (win) {
@@ -167,9 +151,9 @@
             });
         });
 
-        function deleteUser(userId, userName) {
+        function deleteRole(roleId, roleName) {
             Swal.fire({
-                title: `Delete ${userName}?`,
+                title: `Delete role "${roleName}"?`,
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -181,19 +165,19 @@
                     var token = $('input[name="__RequestVerificationToken"]').val();
 
                     $.ajax({
-                        url: '/User/Delete/' + userId,
+                        url: '/Role/Delete/' + roleId,
                         type: 'POST',
                         headers: { 'RequestVerificationToken': token },
                         success: function (response) {
                             if (response.success) {
                                 Swal.fire('Deleted!', response.message, 'success');
-                                $('#userTable').DataTable().ajax.reload();
+                                $('#roleTable').DataTable().ajax.reload();
                             } else {
                                 Swal.fire('Error!', response.message, 'error');
                             }
                         },
                         error: function () {
-                            Swal.fire('Error!', 'Error deleting user!', 'error');
+                            Swal.fire('Error!', 'Error deleting role!', 'error');
                         }
                     });
                 }
