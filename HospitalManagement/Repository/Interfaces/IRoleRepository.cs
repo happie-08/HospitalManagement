@@ -8,8 +8,10 @@ namespace HospitalManagement.Repository.Interfaces
     {
         Task<List<Role>> GetAllRolesAsync();
         Task<Role?> GetRoleByIdAsync(int id);
-        Task<bool> CreateRoleAsync(Role role);
-        Task<bool> UpdateRoleAsync(Role role);
+        Task<bool> RoleNameExistsAsync(string name, int? excludeId = null);
+        Task AddRoleAsync(Role role);
+        Task UpdateRoleAsync(Role role);
         Task<bool> DeleteRoleAsync(int id);
     }
+
 }

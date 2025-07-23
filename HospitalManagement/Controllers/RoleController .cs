@@ -44,19 +44,30 @@ namespace HospitalManagement.Controllers
         }
 
         // POST: Role/Create
-        // POST: Role/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Role role)
         {
             if (ModelState.IsValid)
             {
+                // ✅ Check for duplicate Role Name
+                bool exists = await _context.Roles
+                    .AnyAsync(r => r.Name.ToLower() == role.Name.ToLower());
+
+                if (exists)
+                {
+                    ModelState.AddModelError("Name", "This role name already exists!");
+                    return View("Create", role);
+                }
+
                 _context.Add(role);
                 await _context.SaveChangesAsync();
+                TempData["success"] = "Role created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View("Create", role);
         }
+
         // GET: Role/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -80,10 +91,21 @@ namespace HospitalManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                // ✅ Check for duplicate Role Name (excluding current role)
+                bool exists = await _context.Roles
+                    .AnyAsync(r => r.Name.ToLower() == role.Name.ToLower() && r.Id != role.Id);
+
+                if (exists)
+                {
+                    ModelState.AddModelError("Name", "This role name already exists!");
+                    return View("Create", role);
+                }
+
                 try
                 {
                     _context.Update(role);
                     await _context.SaveChangesAsync();
+                    TempData["success"] = "Role updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -94,9 +116,8 @@ namespace HospitalManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View("Create", role); // 👈 use Create view for errors too
+            return View("Create", role);
         }
-
 
         // POST: Role/Delete/5
         [HttpPost]
