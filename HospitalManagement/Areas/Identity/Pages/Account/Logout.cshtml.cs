@@ -1,14 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using HospitalManagement.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using HospitalManagement.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace HospitalManagement.Areas.Identity.Pages.Account
@@ -24,21 +18,30 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
+        public async Task<IActionResult> OnGet(string returnUrl = null) // 👈 Add OnGet
+        {
+            await LogoutUserAsync();
+            return RedirectToAction("Index", "Home"); // 👈 Redirect to MVC Home/Index
+        }
+
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            // Sign out user
+            await LogoutUserAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToAction("Index", "Home"); // 👈 Redirect to MVC Home/Index
+        }
+
+        private async Task LogoutUserAsync()
+        {
+            HttpContext.Session.Clear(); // ✅ Clear session
+            Response.Cookies.Delete(".AspNetCore.Identity.Application"); // ✅ Clear identity cookie
             await _signInManager.SignOutAsync();
-
-            // Clear session
-            HttpContext.Session.Clear();
-
-            // Delete cookies
-            Response.Cookies.Delete(".AspNetCore.Identity.Application");
-
             _logger.LogInformation("User logged out.");
-
-            // Redirect to login page
-            return RedirectToPage("~/");
         }
     }
 }
