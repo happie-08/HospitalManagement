@@ -2,9 +2,6 @@
 using HospitalManagement.Models;
 using HospitalManagement.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HospitalManagement.Repository
 {
@@ -27,16 +24,22 @@ namespace HospitalManagement.Repository
             return await _context.Roles.FindAsync(id);
         }
 
-        public async Task<bool> CreateRoleAsync(Role role)
+        public async Task<bool> RoleNameExistsAsync(string name, int? excludeId = null)
         {
-            _context.Roles.Add(role);
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.Roles
+                .AnyAsync(r => r.Name.ToLower() == name.ToLower() && (!excludeId.HasValue || r.Id != excludeId.Value));
         }
 
-        public async Task<bool> UpdateRoleAsync(Role role)
+        public async Task AddRoleAsync(Role role)
         {
-            _context.Roles.Update(role);
-            return await _context.SaveChangesAsync() > 0;
+            _context.Add(role);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateRoleAsync(Role role)
+        {
+            _context.Update(role);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteRoleAsync(int id)
@@ -45,7 +48,8 @@ namespace HospitalManagement.Repository
             if (role == null) return false;
 
             _context.Roles.Remove(role);
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
