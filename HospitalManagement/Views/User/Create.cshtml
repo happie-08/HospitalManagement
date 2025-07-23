@@ -1,7 +1,12 @@
 ﻿@model HospitalManagement.Models.ApplicationUser
 @{
-    ViewData["Title"] = "Add User";
+    bool isEdit = ViewBag.IsEdit ?? false;
+    ViewData["Title"] = isEdit ? "Edit User" : "Add New User";
     Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+
+    // Pre-check gender radio
+    var isMaleChecked = Model?.Gender == "Male" ? "checked" : "";
+    var isFemaleChecked = Model?.Gender == "Female" ? "checked" : "";
 }
 
 @section Styles {
@@ -104,28 +109,24 @@
     <div class="container-fluid">
         <div class="card shadow">
             <div class="card-header">
-                <h4 class="card-title mb-0">Add New User</h4>
+                <h4 class="card-title mb-0">@ViewData["Title"]</h4>
                 <a asp-action="Index" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left"></i> Back to List
                 </a>
             </div>
             <div class="card-body">
-                @if (ViewBag.RequiredError != null)
-                {
-                    <div class="alert alert-danger">
-                        <strong>@ViewBag.RequiredError</strong>
-                    </div>
-                }
-
-                <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" enctype="multipart/form-data" novalidate>
                     @Html.AntiForgeryToken()
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @if (isEdit)
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                    }
 
                     <div class="text-center">
-                        <img src="~/uploads/user.png" id="profilePreview" class="profile-img" alt="Profile Image" />
+                        <img src="~/uploads/@(Model?.Image ?? "user.png")" id="profilePreview" class="profile-img" alt="Profile Image" />
                         <label class="btn-upload">
-                            <i class="fas fa-upload"></i> Upload Image
-                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(event)" />
+                            <i class="fas fa-upload"></i> @(isEdit ? "Change Image" : "Upload Image")
+                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(this)" />
                         </label>
                     </div>
 
@@ -155,54 +156,63 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Password <span class="text-danger">*</span></label>
-                            <input type="password" name="Password" class="form-control" placeholder="Minimum 6 characters" required minlength="6" />
-                            <span class="text-danger">@Html.ValidationMessage("Password")</span>
+                    @if (!isEdit)
+                    {
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Password <span class="text-danger">*</span></label>
+                                <input type="password" name="Password" class="form-control" placeholder="Minimum 6 characters" required minlength="6" />
+                                <span class="text-danger">@Html.ValidationMessage("Password")</span>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Address</label>
-                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter address"></textarea>
-                        </div>
-                    </div>
+                    }
 
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Role <span class="text-danger">*</span></label>
+                            <select asp-for="RoleId" class="form-control" asp-items="ViewBag.Roles">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span asp-validation-for="RoleId" class="text-danger"></span>
+                        </div>
                         <div class="col-md-6 mb-3">
                             <label>Date of Birth</label>
                             <input asp-for="DateOfBirth" type="date" class="form-control" />
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label>Gender</label>
                             <div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" asp-for="Gender" value="Male" checked />
+                                    <input class="form-check-input" type="radio" name="Gender" value="Male" @isMaleChecked />
                                     <label class="form-check-label">Male</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" asp-for="Gender" value="Female" />
+                                    <input class="form-check-input" type="radio" name="Gender" value="Female" @isFemaleChecked />
                                     <label class="form-check-label">Female</label>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Hobbies</label>
-                        <div>
-                            @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
-                            {
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @(Model.Hobby?.Contains(hobby) == true ? "checked" : "") />
-                                    <label class="form-check-label">@hobby</label>
-                                </div>
-                            }
+                        <div class="col-md-6 mb-3">
+                            <label>Hobbies</label>
+                            <div>
+                                @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
+                                {
+                                    var isChecked = Model?.Hobby?.Contains(hobby) == true ? "checked" : "";
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @isChecked />
+                                        <label class="form-check-label">@hobby</label>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-success rounded-pill px-5">
-                            <i class="fas fa-plus"></i> Create User
+                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update User" : "Create User")
                         </button>
                         <a asp-action="Index" class="btn btn-secondary rounded-pill px-4 ml-2">Cancel</a>
                     </div>
@@ -215,12 +225,15 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        function previewImage(event) {
-            const reader = new FileReader();
-            reader.onload = function () {
-                document.getElementById('profilePreview').src = reader.result;
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    document.getElementById('profilePreview').src = reader.result;
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(event.target.files[0]);
         }
     </script>
 }
