@@ -3,7 +3,6 @@
     Layout = "~/Views/Shared/_NavbarLayout.cshtml";
 }
 
-<!-- Hidden AntiForgery Token -->
 <form id="antiForgeryForm">
     @Html.AntiForgeryToken()
 </form>
@@ -27,7 +26,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0">Users Table with Export Options</h4>
+                        <h4 class="card-title mb-0">Users Table with Roles</h4>
                         <a href="/User/Create" class="btn btn-success btn-sm">
                             <i class="fas fa-user-plus"></i> Add User
                         </a>
@@ -42,6 +41,7 @@
                                         <th>Profile</th>
                                         <th>Email / Phone</th>
                                         <th>Username</th>
+                                        <th>Role</th> <!-- 👈 Added Role Column -->
                                         <th style="display:none">Address</th>
                                         <th>DOB / Gender</th>
                                         <th>Hobby</th>
@@ -62,26 +62,6 @@
     <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-    <style>
-        .btn-success {
-            background-color: #1ab394;
-            border-color: #1ab394;
-        }
-
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .dataTables_wrapper .dt-buttons {
-            float: right;
-        }
-    </style>
 }
 
 @section Scripts {
@@ -123,6 +103,7 @@
                         }
                     },
                     { data: 'userName' },
+                    { data: 'roleName' }, // 👈 Display Role
                     { data: 'address', visible: false },
                     {
                         data: null,
@@ -148,22 +129,7 @@
                 responsive: true,
                 pageLength: 10,
                 dom: '<"html5buttons"B>lTfgitp',
-                buttons: [
-                    { extend: 'copy' },
-                    { extend: 'csv' },
-                    { extend: 'excel', title: 'UsersList' },
-                    { extend: 'pdf', title: 'UsersList' },
-                    {
-                        extend: 'print',
-                        customize: function (win) {
-                            $(win.document.body).addClass('white-bg');
-                            $(win.document.body).css('font-size', '10px');
-                            $(win.document.body).find('table')
-                                .addClass('compact')
-                                .css('font-size', 'inherit');
-                        }
-                    }
-                ]
+                buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
             });
         });
 

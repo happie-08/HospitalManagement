@@ -1,5 +1,7 @@
 using HospitalManagement.Data;
 using HospitalManagement.Models;
+using HospitalManagement.Repository;
+using HospitalManagement.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +29,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddRoles<IdentityRole>() // ?? Add Roles support
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 // ? Session
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
