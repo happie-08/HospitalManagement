@@ -1,77 +1,214 @@
 ﻿@page
-@model HospitalManagement.Pages.EditProfileModel
+@model HospitalManagement.Pages.Account.Manage.EditProfileModel
 @{
     ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+
+    var isMaleChecked = Model.Input.Gender == "Male" ? "checked" : "";
+    var isFemaleChecked = Model.Input.Gender == "Female" ? "checked" : "";
 }
 
-<h2 class="mb-4">Edit Profile</h2>
+@section Styles {
+    <style>
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-y: auto;
+            background-color: #f1f4f6;
+        }
 
-@if (!string.IsNullOrEmpty(Model.StatusMessage))
-{
-    <div class="alert alert-success">
-        @Model.StatusMessage
-    </div>
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1ab394;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-upload {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            color: #fff;
+            background-color: #1ab394;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-upload:hover {
+                background-color: #17a085;
+            }
+
+        .form-control {
+            border-radius: 0.5rem;
+            box-shadow: none;
+        }
+
+        .form-check-inline {
+            margin-right: 20px;
+        }
+
+        .card {
+            margin: 2rem auto;
+            max-width: 1500px;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #1ab394, #16a085);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 20px;
+            padding: 5px 15px;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-success {
+            background-color: #1ab394;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-success:hover {
+                background-color: #17a085;
+            }
+
+        .content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+    </style>
 }
-
-<form method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label>Profile Image</label><br />
-        <img src="~/uploads/@Model.Input.ExistingImage" alt="Profile Image"
-             style="width:100px;height:100px;border-radius:50%;" /><br />
-        <input asp-for="Input.ProfileImage" type="file" class="form-control mt-2" />
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Input.Name"></label>
-        <input asp-for="Input.Name" class="form-control" />
-        <span asp-validation-for="Input.Name" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Input.PhoneNumber"></label>
-        <input asp-for="Input.PhoneNumber" class="form-control" />
-        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Input.Address"></label>
-        <textarea asp-for="Input.Address" class="form-control"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>Gender</label><br />
-        @foreach (var gender in new[] { "Male", "Female" })
-        {
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" asp-for="Input.Gender" value="@gender"
-                       checked="@(Model.Input.Gender == gender)" />
-                <label class="form-check-label">@gender</label>
+<section class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="container-fluid">
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Edit Profile</h4>
+                <a asp-page="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
             </div>
-        }
-    </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="text-center">
+                        <img src="~/uploads/@(Model.Input.Image ?? "user.png")" id="profilePreview" class="profile-img" alt="Profile Image" />
+                        <label class="btn-upload">
+                            <i class="fas fa-upload"></i> Change Image
+                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(this)" />
+                        </label>
+                    </div>
 
-    <div class="form-group">
-        <label asp-for="Input.DateOfBirth"></label>
-        <input asp-for="Input.DateOfBirth" class="form-control" type="date" />
-    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-3">
+                            <label>Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="Input.Name" class="form-control" required />
+                            <span asp-validation-for="Input.Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Phone Number</label>
+                            <input asp-for="Input.PhoneNumber" class="form-control" pattern="\d{10}" />
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
 
-    <div class="form-group">
-        <label>Hobbies</label><br />
-        @foreach (var hobby in new[] { "Gaming", "Music", "Coding", "Sports" })
-        {
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="Input.Hobby" value="@hobby"
-                       @(Model.Input.Hobby.Contains(hobby) ? "checked" : "") />
-                <label class="form-check-label">@hobby</label>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Email <span class="text-danger">*</span></label>
+                            <input asp-for="Input.Email" class="form-control" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Username <span class="text-danger">*</span></label>
+                            <input asp-for="Input.UserName" class="form-control" />
+                            <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        
+                        <div class="col-md-6 mb-3">
+                            <label>Gender</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Input.Gender" value="Male" @isMaleChecked />
+                                    <label class="form-check-label">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="Input.Gender" value="Female" @isFemaleChecked />
+                                    <label class="form-check-label">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Date of Birth</label>
+                            <input asp-for="Input.DateOfBirth" type="date" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-12 mb-3">
+                            <label>Hobbies</label>
+                            <div>
+                                @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
+                                {
+                                    var isChecked = Model.Input.Hobby?.Contains(hobby) == true ? "checked" : "";
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="Input.Hobby" value="@hobby" @isChecked />
+                                        <label class="form-check-label">@hobby</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="fas fa-save"></i> Update Profile
+                        </button>
+                        <a asp-page="Index" class="btn btn-secondary rounded-pill px-4 ml-2">Cancel</a>
+                    </div>
+                </form>
             </div>
-        }
+        </div>
     </div>
-
-    <button type="submit" class="btn btn-primary mt-3">
-        Save Changes
-    </button>
-</form>
-
+</section>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    document.getElementById('profilePreview').src = reader.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 }
