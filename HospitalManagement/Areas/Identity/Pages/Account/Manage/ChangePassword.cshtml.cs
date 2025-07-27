@@ -67,7 +67,9 @@ public class ChangePasswordModel : PageModel
         }
 
         await _signInManager.RefreshSignInAsync(user);
-        StatusMessage = "Your password has been changed.";
-        return RedirectToPage();
+
+        // Redirect to Dashboard/Index
+        return RedirectToAction("Index", "Dashboard");
     }
+
 }
