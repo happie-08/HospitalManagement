@@ -58,10 +58,6 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseSession();
-
 app.Use(async (context, next) =>
 {
     context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
@@ -69,6 +65,9 @@ app.Use(async (context, next) =>
     context.Response.Headers["Expires"] = "0";
     await next();
 });
+app.UseStaticFiles();
+
+app.UseSession();
 
 app.UseRouting();
 

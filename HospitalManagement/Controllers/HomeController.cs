@@ -1,7 +1,10 @@
-using System.Diagnostics;
+using HospitalManagement.Data;
 using HospitalManagement.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace HospitalManagement.Controllers
 {
@@ -9,20 +12,34 @@ namespace HospitalManagement.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Dashboard");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var roleName = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Join(_context.Roles,
+                          u => u.RoleId,
+                          r => r.Id,
+                          (u, r) => r.Name)
+                    .FirstOrDefaultAsync();
             }
+
             ViewData["Title"] = "Home";
-            return View();
+            return View(); // render for all users
         }
+
+
         public IActionResult About()
         {
             ViewData["Title"] = "About";
@@ -34,6 +51,7 @@ namespace HospitalManagement.Controllers
             ViewData["Title"] = "Services";
             return View();
         }
+
         public IActionResult Contact()
         {
             return View();

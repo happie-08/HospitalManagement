@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HospitalManagement.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
-namespace HospitalManagement.Controllers
+
+[Authorize(Roles = "Admin")]
+public class DashboardController : Controller
 {
-    public class DashboardController : Controller
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+
+    public IActionResult Index()
     {
-        [Authorize]
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
     }
 }
+
+
