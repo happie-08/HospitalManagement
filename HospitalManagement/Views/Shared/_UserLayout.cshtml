@@ -110,30 +110,60 @@
 							<a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
 						</li>
 
-						<li class="nav-item @(ViewData["Title"]?.ToString() == "Login" ? "active" : "")">
-							@if (User.Identity.IsAuthenticated)
+						@using System.Security.Claims
+						@inject HospitalManagement.Data.ApplicationDbContext _context
+
+						@{
+							var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+							bool isAdmin = false;
+							string userName = "User";
+
+							if (User.Identity.IsAuthenticated && userId != null)
 							{
-								<a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">
-									Hello, @User.Identity.Name!
-								</a>
+								var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+								userName = user?.UserName ?? "User";
+
+								var roleName = _context.Roles
+								.Where(r => r.Id == user.RoleId)
+								.Select(r => r.Name) // Change to r.userName if needed
+								.FirstOrDefault();
+
+								isAdmin = (roleName == "Admin");
 							}
-							else
-							{
+						}
+						<!-- Login or Username -->
+						@if (User.Identity.IsAuthenticated)
+						{
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+									@userName
+								</a>
+								<ul class="dropdown-menu">
+									@if (isAdmin)
+									{
+										<li>
+											<a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">
+												Admin Panel
+											</a>
+										</li>
+									}
+									<li class="nav-item @(ViewData["Title"]?.ToString() == "Logout" ? "active" : "")">
+										<form asp-area="Identity" asp-page="/Account/Logout" method="post" class="dropdown-item m-0 p-0">
+											<button type="submit" class="btn btn-link dropdown-item">Logout</button>
+										</form>
+									</li>
+								</ul>
+							</li>
+						}
+						else
+						{
+							<!-- Login Link if not logged in -->
+							<li class="nav-item @(ViewData["Title"]?.ToString() == "Login" ? "active" : "")">
 								<a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
 									Login
 								</a>
-							}
-						</li>
-
-						@if (User.Identity.IsAuthenticated)
-						{
-							<li class="nav-item @(ViewData["Title"]?.ToString() == "Logout" ? "active" : "")">
-								<form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm" class="d-inline">
-									<button type="submit" class="nav-link btn btn-link" style="display:inline; padding:0;">Logout</button>
-								</form>
 							</li>
 						}
-
 					</ul>
 				</div>
 			</div>

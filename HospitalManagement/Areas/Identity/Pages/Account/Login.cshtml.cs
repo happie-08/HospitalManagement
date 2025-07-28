@@ -94,7 +94,7 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
             Response.Headers["Pragma"] = "no-cache";
             Response.Headers["Expires"] = "0";
 
-            ReturnUrl = returnUrl ?? Url.Content("~/Dashboard/Index");
+            ReturnUrl = returnUrl ?? Url.Content("~/Home/Index");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             return Page(); // render login
@@ -103,7 +103,7 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/Dashboard/Index");
+            returnUrl ??= Url.Content("~/Home/Index");
 
             if (ModelState.IsValid)
             {
