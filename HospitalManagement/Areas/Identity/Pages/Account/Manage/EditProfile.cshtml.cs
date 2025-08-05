@@ -47,45 +47,52 @@ namespace HospitalManagement.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            try
             {
-                //LoadRoleList(Input.RoleId?.ToString());
+                if (!ModelState.IsValid)
+                {
+                    return Page();
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return NotFound();
+
+                // update fields
+                user.Name = Input.Name;
+                user.Email = Input.Email;
+                user.UserName = Input.UserName;
+                user.PhoneNumber = Input.PhoneNumber;
+                user.DateOfBirth = Input.DateOfBirth;
+                user.Gender = Input.Gender;
+                user.Hobby = Request.Form["Input.Hobby"];
+
+                if (ImageFile != null)
+                {
+                    var fileName = $"{Guid.NewGuid()}_{ImageFile.FileName}";
+                    var path = Path.Combine(_env.WebRootPath, "uploads", fileName);
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+                    user.Image = fileName;
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                    return RedirectToAction("Index", "Dashboard");
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
                 return Page();
             }
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
-
-            // update fields
-            user.Name = Input.Name;
-            user.Email = Input.Email;
-            user.UserName = Input.UserName;
-            user.PhoneNumber = Input.PhoneNumber;
-            user.DateOfBirth = Input.DateOfBirth;
-            user.Gender = Input.Gender;
-            //user.RoleId = Input.RoleId;
-            user.Hobby = Request.Form["Input.Hobby"];
-
-            if (ImageFile != null)
+            catch (Exception ex)
             {
-                var fileName = $"{Guid.NewGuid()}_{ImageFile.FileName}";
-                var path = Path.Combine(_env.WebRootPath, "uploads", fileName);
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await ImageFile.CopyToAsync(stream);
-                }
-                user.Image = fileName;
+                // Log to output window
+                Console.WriteLine("?? Exception: " + ex.Message);
+                Console.WriteLine("?? StackTrace: " + ex.StackTrace);
+                throw; // Keep this to see detailed crash in Output window
             }
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-                return RedirectToAction("Index", "Dashboard");
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-
-            //LoadRoleList(Input.RoleId?.ToString());
-            return Page();
         }
 
     }
