@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Admin Panel</title>
+    <title>@ViewData["Title"]</title>
     <link rel="icon" href="~/Admin/img/kaiadmin/favicon.ico" type="image/x-icon">
 
     <!-- Fonts and Icons -->
@@ -37,7 +37,7 @@
         <div class="sidebar" data-background-color="dark">
             <div class="sidebar-logo">
                 <div class="logo-header" data-background-color="dark">
-                    <a href="index.html" class="logo">
+                    <a asp-controller="Dashboard" asp-action="Index" class="logo">
                         <img src="~/Admin/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20">
                     </a>
                     <div class="nav-toggle">
@@ -67,7 +67,14 @@
                                 <i class="fas fa-user-shield"></i>
                                 <p>Role</p>
                             </a>
-                        </li>       
+                        </li>  
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "ReferenceDoctor" ? "active" : "")">
+                            <a class="nav-link" asp-controller="ReferenceDoctor" asp-action="Index">
+                                <i class="nav-icon fas fa-user-md"></i>
+                                <p>Reference Doctor</p>
+                            </a>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -285,7 +292,7 @@
 
                             @{
                                 var user = await UserManager.GetUserAsync(User);
-                                var userName = user?.UserName ?? "Guest";
+                                var userName = user?.Name ?? "Guest";
                                 var userImage = string.IsNullOrEmpty(user?.Image) ? "user.png" : user.Image;
                                 var finalImagePath = Url.Content("~/uploads/" + userImage);
                             }

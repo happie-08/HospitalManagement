@@ -6,7 +6,7 @@
 	<meta name="description" content="Orbitor,business,company,agency,modern,bootstrap4,tech,software">
 	<meta name="author" content="themefisher.com">
 
-	<title>Hospital Management</title>
+	<title>@ViewData["Title"]</title>
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
@@ -116,28 +116,33 @@
 						@{
 							var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 							bool isAdmin = false;
-							string userName = "User";
+							// string userName = "User";
+							string userImage = "~/uploads/user.png"; // Default image path (you can customize this)
 
 							if (User.Identity.IsAuthenticated && userId != null)
 							{
 								var user = _context.Users.FirstOrDefault(u => u.Id == userId);
-								userName = user?.UserName ?? "User";
+								// userName = user?.Name ?? "User";
+								userImage = string.IsNullOrEmpty(user?.Image) ? "/uploads/user.png" : "/uploads/" + user.Image;
 
 								var roleName = _context.Roles
 								.Where(r => r.Id == user.RoleId)
-								.Select(r => r.Name) // Change to r.userName if needed
+								.Select(r => r.Name)
 								.FirstOrDefault();
 
 								isAdmin = (roleName == "Admin");
 							}
 						}
+
 						<!-- Login or Username -->
 						@if (User.Identity.IsAuthenticated)
 						{
 							<li class="nav-item dropdown">
-								<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-									@userName
+								<a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+									<img src="@userImage" alt="User Image" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+									@* <span>@userName</span> *@
 								</a>
+
 								<ul class="dropdown-menu">
 									@if (isAdmin)
 									{

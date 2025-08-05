@@ -7,7 +7,6 @@ namespace HospitalManagement.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        [Required(ErrorMessage = "Full Name is required")]
         public string? Name { get; set; }
         public string? Hobby { get; set; }
         public string? Gender { get; set; }

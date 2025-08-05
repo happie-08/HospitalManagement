@@ -27,12 +27,12 @@ namespace HospitalManagement.Pages.Account.Manage
         [BindProperty]
         public IFormFile? ImageFile { get; set; }
 
-        public SelectList RoleList { get; set; }
-        private void LoadRoleList(string? selectedRoleId = null)
-        {
-            var roles = _roleManager.Roles.ToList();
-            ViewData["RoleList"] = new SelectList(roles, "Id", "Name", selectedRoleId);
-        }
+        //public SelectList RoleList { get; set; }
+        //private void LoadRoleList(string? selectedRoleId = null)
+        //{
+        //    var roles = _roleManager.Roles.ToList();
+        //    ViewData["RoleList"] = new SelectList(roles, "Id", "Name", selectedRoleId);
+        //}
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -40,7 +40,7 @@ namespace HospitalManagement.Pages.Account.Manage
             if (user == null) return NotFound();
 
             Input = user;
-            LoadRoleList(user.RoleId?.ToString());
+            //LoadRoleList(user.RoleId?.ToString());
             return Page();
         }
 
@@ -49,7 +49,7 @@ namespace HospitalManagement.Pages.Account.Manage
         {
             if (!ModelState.IsValid)
             {
-                LoadRoleList(Input.RoleId?.ToString());
+                //LoadRoleList(Input.RoleId?.ToString());
                 return Page();
             }
 
@@ -63,7 +63,7 @@ namespace HospitalManagement.Pages.Account.Manage
             user.PhoneNumber = Input.PhoneNumber;
             user.DateOfBirth = Input.DateOfBirth;
             user.Gender = Input.Gender;
-            user.RoleId = Input.RoleId;
+            //user.RoleId = Input.RoleId;
             user.Hobby = Request.Form["Input.Hobby"];
 
             if (ImageFile != null)
@@ -79,12 +79,12 @@ namespace HospitalManagement.Pages.Account.Manage
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
-                return RedirectToPage("Index");
+                return RedirectToAction("Index", "Dashboard");
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error.Description);
 
-            LoadRoleList(Input.RoleId?.ToString());
+            //LoadRoleList(Input.RoleId?.ToString());
             return Page();
         }
 

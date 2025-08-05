@@ -11,6 +11,8 @@ namespace HospitalManagement.Data
         {
         }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<ReferenceDoctor> ReferenceDoctors { get; set; }
+
 
     }
 }
