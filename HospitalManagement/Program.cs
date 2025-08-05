@@ -2,7 +2,10 @@ using HospitalManagement.Data;
 using HospitalManagement.Models;
 using HospitalManagement.Repository;
 using HospitalManagement.Repository.Interfaces;
+using HospitalManagement.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,18 +19,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.Configure<SendGridOptions>(
+    builder.Configuration.GetSection("SendGrid"));  // This must match the section name in appsettings.json
+
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
+
+
 // ? Add Identity with Roles support
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false; // ?? For testing, set to false
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
 })
-.AddRoles<IdentityRole>() // ?? Add Roles support
-.AddEntityFrameworkStores<ApplicationDbContext>();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders() // ? Needed for email confirmation
+.AddRoles<IdentityRole>(); // ?? Add Roles support
+
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();

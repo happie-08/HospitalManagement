@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
@@ -89,7 +89,7 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
-            // ✅ Prevent browser from caching the login page
+            // ? Prevent browser from caching the login page
             Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
             Response.Headers["Pragma"] = "no-cache";
             Response.Headers["Expires"] = "0";
@@ -107,16 +107,16 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // 👇 First, find the user by email
+                // ?? First, find the user by email
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 if (user != null)
                 {
-                    // 👇 Use username to sign in
-                    var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    // ?? Use username to sign in
+                    var result = await _signInManager.PasswordSignInAsync(await _userManager.GetUserNameAsync(user), Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
                     if (result.Succeeded)
                     {
-                        HttpContext.Session.SetString("UserName", user.UserName);
+                        HttpContext.Session.SetString("Name", user.Name ?? "Unknown");
                         HttpContext.Session.SetString("UserImage", user.Image ?? "user.png");
 
                         _logger.LogInformation("User logged in.");
