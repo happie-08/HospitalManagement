@@ -24,6 +24,7 @@
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/css.gg/2.0.0/css.gg.min.css">
     <link rel="stylesheet" href="~/Admin/css/plugins.min.css">
     <link rel="stylesheet" href="~/Admin/css/kaiadmin.min.css">
@@ -74,7 +75,12 @@
                                 <p>Reference Doctor</p>
                             </a>
                         </li>
-
+                         <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" ? "active" : "")">
+                            <a class="nav-link" asp-controller="Patient" asp-action="Index">
+                                <i class="nav-icon fas fa-procedures"></i>
+                                <p>Patient</p>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

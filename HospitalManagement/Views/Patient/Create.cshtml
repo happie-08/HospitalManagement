@@ -1,0 +1,222 @@
+﻿@model HospitalManagement.Models.Patient
+
+@{
+    bool isEdit = ViewBag.IsEdit ?? false;
+    ViewData["Title"] = isEdit ? "Edit Patient" : "Add Patient";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        html, body {
+            background-color: #f1f4f6;
+            height: auto;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1ab394;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .card {
+            margin: 2rem auto;
+            max-width: 1500px;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .btn-upload {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            color: #fff;
+            background-color: #1ab394;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-upload:hover {
+                background-color: #17a085;
+        }
+        .card-header {
+            background: linear-gradient(90deg, #1ab394, #16a085);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-success {
+            background-color: #1ab394;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 20px;
+            padding: 6px 20px;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+        }
+
+        .form-check-inline {
+            margin-right: 15px;
+        }
+
+        label {
+            font-weight: 500;
+        }
+    </style>
+}
+
+<section class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h4 class="page-title">@ViewData["Title"]</h4>
+            <ul class="breadcrumbs">
+                <li class="nav-home"><a asp-controller="Dashboard" asp-action="Index"><i class="fas fa-home"></i></a></li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a asp-controller="Patient" asp-action="Index">Patients</a></li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a href="#">@ViewData["Title"]</a></li>
+            </ul>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="card-title mb-0">@ViewData["Title"]</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+            <div class="card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" enctype="multipart/form-data" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (isEdit)
+                    {
+                        @Html.HiddenFor(m => m.PatientId)
+                    }
+                    <div class="text-center">
+                        <img src="@Url.Content("~/uploads/" + (string.IsNullOrEmpty(Model?.Image) ? "user.png" : Model.Image))"
+                             id="profilePreview"
+                             class="profile-img"
+                             alt="Profile Image" />
+                        <label class="btn-upload">
+                            <i class="fas fa-upload"></i> @(isEdit ? "Change Image" : "Upload Image")
+                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(this)" />
+                        </label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>First Name <span class="text-danger">*</span></label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Last Name <span class="text-danger">*</span></label>
+                            <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                                <label>Contact No <span class="text-danger">*</span></label>
+                                <input asp-for="ContactNo" class="form-control" placeholder="10-digit mobile number" />
+                                <span asp-validation-for="ContactNo" class="text-danger"></span>
+                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-calendar-date"></i>
+                                    </span>
+                                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                </div>
+                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label>Height (cm)</label>
+                                <input asp-for="Height" class="form-control" />
+                                <span asp-validation-for="Height" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Weight (kg)</label>
+                                <input asp-for="Weight" class="form-control" />
+                                <span asp-validation-for="Weight" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label d-block">Gender</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Gender" id="male" value="Male"
+                                       @(Model?.Gender == "Male" || string.IsNullOrEmpty(Model?.Gender) ? "checked" : "") />
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="Gender" id="female" value="Female"
+                                       @(Model?.Gender == "Female" ? "checked" : "") />
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                        
+                        <div class="col-md-6 mb-3">
+                            <label>Reference Doctor  <small class="text-muted">(Select from dropdown)</small></label>
+                            <select asp-for="ReferenceDoctorId" class="form-control" asp-items="ViewBag.ReferenceDoctorId">
+                                <option value="">-- Select Doctor --</option>
+                            </select>
+                            <span asp-validation-for="ReferenceDoctorId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label>Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter full address"></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>                      
+                        <div class="col-md-12 mb-3">
+                            <label>Remark</label>
+                            <textarea asp-for="Remark" class="form-control" rows="3" placeholder="Enter Remark"></textarea>
+                            <span asp-validation-for="Remark" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update Patient" : "Add Patient")
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary rounded-pill px-4 ml-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,84 @@
+﻿@model HospitalManagement.Models.Patient
+
+@{
+    ViewData["Title"] = "Patient Details";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1ab394;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-value {
+            color: #555;
+        }
+
+        .card {
+            border-radius: 10px;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Patient Details</h4>
+            <a asp-action="Index" class="btn btn-sm btn-secondary">Back to List</a>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-3 text-center">
+                    <img src="@Url.Content("~/uploads/" + (string.IsNullOrEmpty(Model?.Image) ? "user.png" : Model.Image))" class="profile-img" alt="Patient Image" onerror="this.src='/images/user.png'">
+                    <h5 class="mt-2">@Model.FirstName @Model.LastName</h5>
+                    <p class="text-muted">@Model.Email</p>
+                </div>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Contact No:</span>
+                            <div class="detail-value">@Model.ContactNo</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Gender:</span>
+                            <div class="detail-value">@Model.Gender</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Height:</span>
+                            <div class="detail-value">@Model.Height cm</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Weight:</span>
+                            <div class="detail-value">@Model.Weight kg</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Date of Birth:</span>
+                            <div class="detail-value">@Model.DateOfBirth?.ToString("dd-MM-yyyy")</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <span class="detail-label">Reference Doctor:</span>
+                            <div class="detail-value">@($"{Model.ReferenceDoctor?.FirstName} {Model.ReferenceDoctor?.LastName}")</div>
+
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <span class="detail-label">Address:</span>
+                            <div class="detail-value">@Model.Address</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

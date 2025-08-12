@@ -75,7 +75,12 @@
                                 <p>Reference Doctor</p>
                             </a>
                         </li>
-                      
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patient" ? "active" : "")">
+                            <a class="nav-link" asp-controller="Patient" asp-action="Index">
+                                <i class="nav-icon fas fa-procedures"></i>
+                                <p>Patient</p>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
