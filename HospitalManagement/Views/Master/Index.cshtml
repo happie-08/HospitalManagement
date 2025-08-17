@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "Master List";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="page-inner">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <h4 class="mb-0 page-title">Master List</h4>
+                <ul class="breadcrumbs mb-0 d-flex align-items-center">
+                    <li class="nav-home">
+                        <a asp-controller="Dashboard" asp-action="Index">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                    <li class="nav-item"><a href="#">Master List</a></li>
+                </ul>
+            </div>
+
+            <a href="/Master/Create" class="btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Add Master
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="masterTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Active</th>
+                                        <th style="width: 150px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <style>
+        .btn-success {
+            background-color: #1ab394;
+            border-color: #1ab394;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .dataTables_wrapper .dt-buttons {
+            float: right;
+        }
+
+        #typeFilterContainer {
+            margin-left: 20px; /* or whatever you want */
+            display: flex;
+        }
+
+    </style>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            var table = $('#masterTable').DataTable({
+                ajax: {
+                    url: '/Master/GetMasters',
+                    type: 'GET',
+                    dataSrc: 'data'
+                },
+                columns: [
+                    {
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    { data: 'name' },
+                    { data: 'type' },
+                    {
+                        data: 'active',
+                        render: function (data) {
+                            return data ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function (data, type, row) {
+                            return `
+                                <a href="/Master/Edit/${data}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteMaster('${data}', '${row.name}')">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                responsive: true,
+                pageLength: 10,
+                dom: `
+                  <"top-section d-flex justify-content-between mb-3"
+                    <"d-flex"
+                      l
+                      <"#typeFilterContainer" class="ml-4">
+                    >
+                    <"d-flex"
+                      f
+                      B
+                    >
+                  >
+                  t
+                  ip
+                `,
+
+                buttons: [
+                    { extend: 'excel', title: 'MasterList' },
+                    { extend: 'pdf', title: 'MasterList' }
+                ]
+            });
+            $('#typeFilterContainer').html(`
+                <label for="typeFilter" class="mr-2 my-auto">Filter by Type: </label>
+                <select id="typeFilter" class="form-control form-control-sm" style="width: 180px;">
+                    <option value="">All</option>
+                    <option value="Symptoms">Symptoms</option>
+                    <option value="Diagnosis">Diagnosis</option>
+                </select>
+            `);
+            $('#typeFilter').on('change', function () {
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                table.column(2)  // index of Type column
+                    .search(val ? '^' + val + '$' : '', true, false)
+                    .draw();
+            });
+        });
+ 
+        function deleteMaster(id, name) {
+            Swal.fire({
+                title: `Delete "${name}"?`,
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/Master/Delete/' + id,
+                        type: 'POST',
+                        headers: { 'RequestVerificationToken': token },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', response.message, 'success');
+                                $('#masterTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'Error deleting record!', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

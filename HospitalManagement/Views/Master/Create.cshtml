@@ -1,7 +1,7 @@
-﻿@model HospitalManagement.Models.ReferenceDoctor
+﻿@model HospitalManagement.Models.Master
 @{
     bool isEdit = ViewBag.IsEdit ?? false;
-    ViewData["Title"] = isEdit ? "Edit Reference Doctor" : "Add Reference Doctor";
+    ViewData["Title"] = isEdit ? "Edit Master" : "Add Master";
     Layout = "~/Views/Shared/_NavbarLayout.cshtml";
 }
 
@@ -19,7 +19,7 @@
 
         .card {
             margin: 2rem auto;
-            max-width: 1500px; /* Match user form */
+            max-width: 1500px;
             border: none;
             border-radius: 1rem;
             overflow: hidden;
@@ -65,7 +65,7 @@
             <ul class="breadcrumbs">
                 <li class="nav-home"><a asp-controller="Dashboard" asp-action="Index"><i class="fas fa-home"></i></a></li>
                 <li class="separator"><i class="fas fa-chevron-right"></i></li>
-                <li class="nav-item"><a asp-controller="ReferenceDoctor" asp-action="Index">Reference Doctors</a></li>
+                <li class="nav-item"><a asp-controller="Master" asp-action="Index">Master List</a></li>
                 <li class="separator"><i class="fas fa-chevron-right"></i></li>
                 <li class="nav-item"><a href="#">@ViewData["Title"]</a></li>
             </ul>
@@ -89,49 +89,19 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label>First Name <span class="text-danger">*</span></label>
-                            <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                            <label>Type <span class="text-danger">*</span></label>
+                            <input asp-for="Type" class="form-control" placeholder="Enter type" />
+                            <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label>Last Name <span class="text-danger">*</span></label>
-                            <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
+                            <label>Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label>Hospital Name</label>
-                            <input asp-for="HospitalName" class="form-control" placeholder="Enter hospital name" />
-                            <span asp-validation-for="HospitalName" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label>Degree</label>
-                            <input asp-for="Degree" class="form-control" placeholder="e.g. MBBS, MD" />
-                            <span asp-validation-for="Degree" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label>Contact No <span class="text-danger">*</span></label>
-                            <input asp-for="ContactNo" class="form-control" placeholder="10-digit number" pattern="\d{10}" />
-                            <span asp-validation-for="ContactNo" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label>Email</label>
-                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label>Address</label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter full address"></textarea>
-                            <span asp-validation-for="Address" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check">
+                            <div class="form-check mt-4">
                                 <input asp-for="Active" class="form-check-input" type="checkbox" />
                                 <label asp-for="Active" class="form-check-label">Active</label>
                             </div>
@@ -140,7 +110,7 @@
 
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-success rounded-pill px-5">
-                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update Doctor" : "Add Doctor")
+                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update Master" : "Add Master")
                         </button>
                         <button type="reset" class="btn btn-secondary rounded-pill px-4 ml-2">
                             <i class="fas fa-undo"></i> Reset
