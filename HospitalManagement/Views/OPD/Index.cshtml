@@ -1,0 +1,175 @@
+﻿    @{
+        ViewData["Title"] = "OPD List";
+        Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+    }
+
+    <form id="antiForgeryForm">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+        <div class="page-inner">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Left Side: Title + Breadcrumb -->
+                <div class="d-flex align-items-center gap-3">
+                    <h4 class="mb-0 page-title">OPD List</h4>
+                    <ul class="breadcrumbs mb-0 d-flex align-items-center">
+                        <li class="nav-home">
+                            <a asp-controller="Dashboard" asp-action="Index">
+                                <i class="fas fa-home"></i>
+                            </a>
+                        </li>
+                        <li class="separator mx-2"><i class="fas fa-chevron-right"></i></li>
+                        <li class="nav-item"><a href="#">OPD List</a></li>
+                    </ul>
+                </div>
+
+                <!-- Right Side: Add Button -->
+                <a href="/OPD/Create" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus"></i> Add OPD
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="opdTable" class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Patient</th>
+                                            <th>Doctor</th>
+                                            <th>Diagnosis</th>
+                                            <th>Symptom</th>
+                                            <th>Amount</th>
+                                            <th>Payment Date</th>
+                                            <th>Invest Number</th>
+                                            <th style="width: 150px;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Styles {
+        <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+        <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    }
+
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            $(document).ready(function () {
+                var table = $('#opdTable').DataTable({
+                    ajax: {
+                    url: '/OPD/GetAll',
+                        type: 'GET',
+                        dataSrc: 'data'
+                    },
+                    columns: [
+                        {
+                            data: null,
+                            render: function (data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        { data: 'patientName' },
+                        { data: 'doctorName' },
+                        { data: 'diagnosisName' },
+                        { data: 'symptomName' },
+                        {
+                            data: 'amount',
+                            render: function(data) {
+                                return data ? data : "-";
+                            }
+                        },
+                        {
+                            data: 'paymentDate',
+                            render: function (data) {
+                                if (!data) return "-";
+                                var d = new Date(data);
+                                return d.toLocaleDateString('en-GB'); // dd/MM/yyyy
+                            }
+                        },
+                        { data: 'investNumber' },
+                        {
+                            data: 'id',
+                            render: function (data, type, row) {
+                                return `
+                                    <a href="/OPD/Edit/${data}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteOPD('${data}')">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    responsive: true,
+                    pageLength: 10,
+                    dom: '<"row align-items-center mb-3"' +
+                                '<"col-md-6 d-flex align-items-center"l>' +
+                                '<"col-md-6 d-flex justify-content-end align-items-center"fB>' +
+                             '>rtip',
+                    buttons: [
+                        { extend: 'excel', title: 'OPDList' },
+                        { extend: 'pdf', title: 'OPDList' }
+                    ]
+                });
+            });
+
+            function deleteOPD(opdId) {
+                Swal.fire({
+                    title: `Delete OPD Record?`,
+                    text: "This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var token = $('input[name="__RequestVerificationToken"]').val();
+
+                        $.ajax({
+                            url: '/OPD/Delete/' + opdId,
+                            type: 'POST',
+                            headers: { 'RequestVerificationToken': token },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                    $('#opdTable').DataTable().ajax.reload();
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Error deleting OPD!', 'error');
+                            }
+                        });
+                    }
+                });
+            }
+        </script>
+    }

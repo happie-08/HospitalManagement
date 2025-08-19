@@ -1,0 +1,169 @@
+﻿@model HospitalManagement.Models.OPD
+@{
+    bool isEdit = ViewBag.IsEdit ?? false;
+    ViewData["Title"] = isEdit ? "Edit OPD" : "Add New OPD";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-y: auto;
+            background-color: #f1f4f6;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+            box-shadow: none;
+        }
+
+        .card {
+            margin: 2rem auto;
+            max-width: 1200px;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #1ab394, #16a085);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 20px;
+            padding: 5px 15px;
+        }
+
+        .btn-success {
+            background-color: #1ab394;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+        }
+    </style>
+}
+
+<section class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="container-fluid">
+        <!-- Breadcrumbs Start -->
+        <div class="page-header">
+            <h4 class="page-title">@ViewData["Title"]</h4>
+            <ul class="breadcrumbs">
+                <li class="nav-home">
+                    <a asp-controller="Dashboard" asp-action="Index">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a asp-controller="OPD" asp-action="Index">OPD</a></li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a href="#">@ViewData["Title"]</a></li>
+            </ul>
+        </div>
+        <!-- Breadcrumbs End -->
+
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="card-title mb-0">@ViewData["Title"]</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+            <div class="card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    @Html.AntiForgeryToken()
+                    @if (isEdit)
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Patient <span class="text-danger">*</span></label>
+                            <select asp-for="PatientId" class="form-select" asp-items="ViewBag.Patients">
+                                <option value="">-- Select Patient --</option>
+                            </select>
+                            <span asp-validation-for="PatientId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Doctor <span class="text-danger">*</span></label>
+                            <select asp-for="DoctorId" class="form-select" asp-items="ViewBag.Doctors">
+                                <option value="">-- Select Doctor --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Diagnosis</label>
+                            <div class="input-group">
+                                <select asp-for="DiagnosisId" class="form-select" asp-items="ViewBag.DiagnosisList">
+                                    <option value="">-- Select Diagnosis --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Symptom</label>
+                            <select asp-for="SymptomId" class="form-select" asp-items="ViewBag.SymptomList">
+                                <option value="">-- Select Symptom --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Amount <span class="text-danger">*</span></label>
+                            <input asp-for="Amount" class="form-control" placeholder="Enter amount" required />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Payment Date <span class="text-danger">*</span></label>
+                            <input asp-for="PaymentDate" type="date" class="form-control"
+                                   value="@(Model.PaymentDate.HasValue? Model.PaymentDate.Value.ToString("yyyy-MM-dd") : "")" />
+                            <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Invest Number</label>
+                            <input asp-for="InvestNumber" class="form-control" placeholder="Enter invest number" />
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update OPD" : "Create OPD")
+                        </button>
+                        <button type="button" class="btn btn-secondary rounded-pill px-4 ml-2" onclick="this.form.reset();">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -87,6 +87,13 @@
                                 <p>Master</p>
                             </a>
                         </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "OPD" ? "active" : "")">
+                            <a class="nav-link" asp-controller="OPD" asp-action="Index">
+                                <i class="nav-icon fas fa-stethoscope"></i>
+                                <p>OPD</p>
+                            </a>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -327,6 +334,9 @@
                                                 <div class="u-text">
                                                     <h4>! Welcome</h4>
                                                     <h4>@userName</h4>
+                                                    <a asp-controller="Home" asp-action="Index" class="btn btn-xs btn-secondary btn-sm">
+                                                        User Panel
+                                                    </a>
                                                 </div>
                                             </div>
                                         </li>

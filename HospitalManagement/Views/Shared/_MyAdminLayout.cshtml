@@ -87,6 +87,12 @@
                                 <p>Master</p>
                             </a>
                         </li>
+                        <li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "OPD" ? "active" : "")">
+                            <a class="nav-link" asp-controller="OPD" asp-action="Index">
+                                <i class="nav-icon fas fa-stethoscope"></i>
+                                <p>OPD</p>
+                            </a>
+                        </li>
 
                     </ul>
                 </div>
@@ -321,33 +327,38 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-user animated fadeIn">
                                     <div class="dropdown-user-scroll scrollbar-outer">
-                                    <li>
-                                        <div class="user-box">
-                                            <div class="avatar-lg">
-                                                <img src="@finalImagePath" alt="image profile" class="avatar-img rounded">
-                                            </div>
-                                            <div class="u-text">
-                                                <h4>! Welcome</h4>
-                                                <h4>@userName</h4>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/EditProfile">Edit Profile</a>                                     
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">Change Password</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Logout" style="color: #e74c3c;">Logout</a>
+                                        <li>
+                                            <div class="user-box">
+                                                <div class="avatar-lg">
+                                                    <img src="@finalImagePath" alt="image profile" class="avatar-img rounded">
+                                                </div>
+                                                <div class="u-text">
+                                                    <h4>! Welcome</h4>
+                                                    <h4>@userName</h4>
+                                                    <a asp-controller="Home" asp-action="Index" class="btn btn-xs btn-secondary btn-sm">
+                                                        User Panel
+                                                    </a>
+                                                </div>
+                                               
 
-                                    </li>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/EditProfile">Edit Profile</a>                                     
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">Change Password</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Logout" style="color: #e74c3c;">Logout</a>
+
+                                        </li>
+                                    </div>
+                                </ul>
+                            </li>
+                        </ul>
                     </div>
-                    </ul>
-                    </li>
-                    </ul>
+                </nav>
             </div>
-            </nav>
-        </div>
         <div class="container">
             <div class="page-inner">
                 <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">

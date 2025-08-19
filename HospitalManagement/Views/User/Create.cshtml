@@ -187,7 +187,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label>Role <span class="text-danger">*</span></label>
-                            <select asp-for="RoleId" class="form-control" asp-items="ViewBag.Roles">
+                            <select asp-for="RoleId" class="form-select" asp-items="ViewBag.Roles">
                                 <option value="">-- Select Role --</option>
                             </select>
                             <span asp-validation-for="RoleId" class="text-danger"></span>
@@ -213,18 +213,19 @@
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label>Hobbies</label>
-                            <div>
-                                @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking" })
+                            <label class="form-label">Hobbies</label>
+                            <div class="selectgroup selectgroup-pills">
+                                @foreach (var hobby in new[] { "Gaming", "Dancing", "Coding", "Music", "Sports", "Travel", "Cooking", "Other" })
                                 {
                                     var isChecked = Model?.Hobby?.Contains(hobby) == true ? "checked" : "";
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Hobby" value="@hobby" @isChecked />
-                                        <label class="form-check-label">@hobby</label>
-                                    </div>
+                                    <label class="selectgroup-item">
+                                        <input type="checkbox" name="Hobby" value="@hobby" class="selectgroup-input" @isChecked />
+                                        <span class="selectgroup-button">@hobby</span>
+                                    </label>
                                 }
                             </div>
                         </div>
+
                     </div>
 
                     <div class="text-center">

@@ -188,7 +188,7 @@
                         
                         <div class="col-md-6 mb-3">
                             <label>Reference Doctor  <small class="text-muted">(Select from dropdown)</small></label>
-                            <select asp-for="ReferenceDoctorId" class="form-control" asp-items="ViewBag.ReferenceDoctorId">
+                            <select asp-for="ReferenceDoctorId" class="form-select" asp-items="ViewBag.ReferenceDoctorId">
                                 <option value="">-- Select Doctor --</option>
                             </select>
                             <span asp-validation-for="ReferenceDoctorId" class="text-danger"></span>
