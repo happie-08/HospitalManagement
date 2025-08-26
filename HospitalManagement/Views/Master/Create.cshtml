@@ -101,6 +101,11 @@
                                            @(Model?.Type == "Diagnosis" ? "checked" : "") />
                                     <span class="selectgroup-button">Diagnosis</span>
                                 </label>
+                                <label class="selectgroup-item">
+                                    <input type="radio" name="Type" value="Charges" class="selectgroup-input"
+                                           @(Model?.Type == "Charges" ? "checked" : "") />
+                                    <span class="selectgroup-button">Charges</span>
+                                </label>
                             </div>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>

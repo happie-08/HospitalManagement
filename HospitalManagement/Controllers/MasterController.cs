@@ -19,7 +19,9 @@
                 return new List<SelectListItem>
                 {
                     new SelectListItem { Value = "Symptoms", Text = "Symptoms" },
-                    new SelectListItem { Value = "Diagnosis", Text = "Diagnosis" }
+                    new SelectListItem { Value = "Diagnosis", Text = "Diagnosis" },
+                    new SelectListItem { Value = "Charges", Text = "Charges" }
+
                 };
             }
             public IActionResult Index()

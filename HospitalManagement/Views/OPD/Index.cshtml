@@ -45,7 +45,7 @@
                                             <th>Symptom</th>
                                             <th>Amount</th>
                                             <th>Payment Date</th>
-                                            <th>Invest Number</th>
+                                            <th>InvoiceNumber</th>
                                             <th style="width: 150px;">Actions</th>
                                         </tr>
                                     </thead>
@@ -109,7 +109,7 @@
                                 return d.toLocaleDateString('en-GB'); // dd/MM/yyyy
                             }
                         },
-                        { data: 'investNumber' },
+                        { data: 'invoiceNumber' },
                         {
                             data: 'id',
                             render: function (data, type, row) {

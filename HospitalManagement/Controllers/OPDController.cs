@@ -22,14 +22,15 @@ namespace HospitalManagement.Controllers
         }
 
         // ================== LOAD DROPDOWNS ==================
-        private void LoadDropdowns()
+        private void LoadDropdowns(OPD opd = null)
         {
             ViewBag.Patients = new SelectList(
                 _context.Patients
                     .Select(p => new { p.PatientId, FullName = p.FirstName + " " + p.LastName })
                     .ToList(),
                 "PatientId",
-                "FullName"
+                "FullName",
+                opd?.PatientId // pre-select value for Edit
             );
 
             ViewBag.Doctors = new SelectList(
@@ -37,20 +38,149 @@ namespace HospitalManagement.Controllers
                     .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
                     .ToList(),
                 "Id",
-                "FullName"
+                "FullName",
+                opd?.DoctorId
             );
 
             ViewBag.DiagnosisList = new SelectList(
                 _context.Masters.Where(m => m.Type == "Diagnosis").ToList(),
                 "Id",
-                "Name"
+                "Name",
+                opd?.DiagnosisId
             );
 
             ViewBag.SymptomList = new SelectList(
                 _context.Masters.Where(m => m.Type == "Symptoms").ToList(),
                 "Id",
-                "Name"
+                "Name",
+                opd?.SymptomId
             );
+        }
+
+        // ================== CREATE (GET) ==================
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var lastOpd = _context.OPDs
+                                  .OrderByDescending(o => o.Id)
+                                  .FirstOrDefault();
+
+            int nextNumber = 1;
+            if (lastOpd != null && !string.IsNullOrEmpty(lastOpd.InvoiceNumber))
+            {
+                var numberPart = lastOpd.InvoiceNumber.Replace("NP", "");
+                if (int.TryParse(numberPart, out int lastNumber))
+                    nextNumber = lastNumber + 1;
+            }
+
+            var opd = new OPD
+            {
+                InvoiceNumber = "NP" + nextNumber,
+                PaymentDate = DateTime.Today
+            };
+
+            LoadDropdowns();
+            return View(opd);
+        }
+
+        // ================== CREATE (POST) ==================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(OPD opd)
+        {
+            // Debug ModelState errors
+            if (ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                                .SelectMany(v => v.Errors)
+                                .Select(e => e.ErrorMessage)
+                                .ToList();
+
+                // Reload dropdowns so form works again
+                LoadDropdowns();
+                ViewBag.IsEdit = false;
+
+                // Optionally show errors in view (or return JSON for debugging)
+                ViewBag.Errors = errors;
+                return View(opd);
+            }
+
+            // Auto-generate InvoiceNumber
+            var lastOpd = _context.OPDs.OrderByDescending(o => o.Id).FirstOrDefault();
+            int nextNumber = 1;
+            if (lastOpd != null && !string.IsNullOrEmpty(lastOpd.InvoiceNumber))
+            {
+                var numberPart = lastOpd.InvoiceNumber.Replace("NP", "");
+                if (int.TryParse(numberPart, out int lastNumber))
+                {
+                    nextNumber = lastNumber + 1;
+                }
+            }
+            opd.InvoiceNumber = "NP" + nextNumber;
+
+            // Set default PaymentDate if null
+            if (opd.PaymentDate == default) opd.PaymentDate = DateTime.Today;
+
+            // Insert into DB
+            _context.OPDs.Add(opd);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        // ================== EDIT (GET) ==================
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var opd = _context.OPDs.Find(id);
+            if (opd == null)
+                return NotFound();
+
+            LoadDropdowns(opd);
+            ViewBag.IsEdit = true;
+            return View("Create", opd);
+        }
+
+        // ================== EDIT (POST) ==================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(OPD opd)
+        {
+            if (ModelState.IsValid)
+            {
+                LoadDropdowns(opd);
+                ViewBag.IsEdit = true;
+                return View("Create", opd);
+            }
+
+            var existingOpd = await _context.OPDs.FindAsync(opd.Id);
+            if (existingOpd == null)
+                return NotFound();
+
+            // Update only necessary fields
+            existingOpd.PatientId = opd.PatientId;
+            existingOpd.DoctorId = opd.DoctorId;
+            existingOpd.DiagnosisId = opd.DiagnosisId;
+            existingOpd.SymptomId = opd.SymptomId;
+            existingOpd.Amount = opd.Amount;
+            existingOpd.PaymentDate = opd.PaymentDate;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ================== DELETE ==================
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var opd = await _context.OPDs.FindAsync(id);
+            if (opd == null)
+                return Json(new { success = false, message = "Record not found." });
+
+            _context.OPDs.Remove(opd);
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Record deleted successfully." });
         }
 
         // ================== GET ALL (for DataTables Ajax) ==================
@@ -70,87 +200,12 @@ namespace HospitalManagement.Controllers
                     diagnosisName = o.Diagnosis != null ? o.Diagnosis.Name : "",
                     symptomName = o.Symptom != null ? o.Symptom.Name : "",
                     amount = o.Amount,
-                    paymentDate = o.PaymentDate.HasValue
-                    ? o.PaymentDate.Value.ToString("yyyy-MM-dd")
-                    : "",
-                    investNumber = o.InvestNumber
+                    paymentDate = o.PaymentDate.ToString("yyyy-MM-dd"),
+                    invoiceNumber = o.InvoiceNumber
                 })
                 .ToList();
 
             return Json(new { data = opdList });
-        }
-
-        // ================== CREATE (GET) ==================
-        [HttpGet]
-        public IActionResult Create()
-        {
-            var opd = new OPD
-            {
-                PaymentDate = DateTime.Today // ✅ default date
-            };
-            LoadDropdowns();
-            ViewBag.IsEdit = false;
-            return View(opd);
-        }
-
-        // ================== CREATE (POST) ==================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(OPD opd)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.OPDs.Add(opd);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            LoadDropdowns();
-            ViewBag.IsEdit = false;
-            return View(opd);
-        }
-
-        // ================== EDIT (GET) ==================
-        [HttpGet]
-        public IActionResult Edit(int id)
-        {
-            var opd = _context.OPDs.Find(id);
-            if (opd == null)
-                return NotFound();
-
-            LoadDropdowns();
-            ViewBag.IsEdit = true;
-            return View("Create", opd); // ✅ reuse Create view
-        }
-
-        // ================== EDIT (POST) ==================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(OPD opd)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.OPDs.Update(opd);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            LoadDropdowns();
-            ViewBag.IsEdit = true;
-            return View("Create", opd);
-        }
-
-        // ================== DELETE ==================
-        [HttpPost]
-        public IActionResult Delete(int id)
-        {
-            var opd = _context.OPDs.Find(id);
-            if (opd == null)
-                return Json(new { success = false, message = "Record not found." });
-
-            _context.OPDs.Remove(opd);
-            _context.SaveChanges();
-            return Json(new { success = true, message = "Record deleted successfully." });
         }
     }
 }

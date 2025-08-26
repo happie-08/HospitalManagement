@@ -80,23 +80,23 @@
     <script>
         $(document).ready(function () {
             $('#patientTable').DataTable({
-                ajax: {
-                    url: '/Patient/GetAll',
-                    dataSrc: 'data'
+            ajax: {
+            url: '@Url.Action("GetAll", "Patient")',
+            dataSrc: 'data'
                 },
                 columns: [
-                    { // Row Number
+                    { data: null, render: (data,type,row,meta) => meta.row + 1 },
+                    {
                         data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    { // Profile + Name
-                        data: null,
-                        render: function (data) {
+                        render: data => {
                             const imgSrc = data.image ? `/uploads/${data.image}` : '/uploads/user.png';
-                            const image = `<img src="${imgSrc}" alt="Profile" class="img-circle me-2" style="width:40px; height:40px; object-fit:cover; ">`;
-                            return `<div class="d-flex align-items-center">${image}<span>${data.firstName ?? ''} ${data.lastName ?? ''}</span></div>`;
+                            return `<div class="d-flex align-items-center">
+                                        <img src="${imgSrc}" class="img-circle me-2" style="width:40px;height:40px;object-fit:cover;">
+                                        <span>${data.firstName ?? ''} ${data.lastName ?? ''}</span>
+                                    </div>`;
                         }
-                    },
+                    },               
+
                     { // Gender + Contact
                         data: null,
                         render: d => `${d.gender ?? '-'}<br/><small>${d.contactNo ?? '-'}</small>`
@@ -115,7 +115,7 @@
                     { data: 'address', defaultContent: '-' },
                     { // Reference Doctor
                         data: 'referenceDoctor',
-                        render: d => d ? d.hospitalName ?? '-' : '-'
+                        render: d => d || '-'
                     },
                     { data: 'remark', defaultContent: '-' },
                     { // Actions
@@ -168,13 +168,16 @@
                     var token = $('input[name="__RequestVerificationToken"]').val();
 
                     $.ajax({
-                        url: '/Patient/Delete/' + id,
+                        url: '/Patient/Delete',
                         type: 'POST',
-                        headers: { 'RequestVerificationToken': token },
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: token
+                        },
                         success: function (res) {
                             if (res.success) {
                                 Swal.fire('Deleted!', res.message, 'success');
-                                $('#patientTable').DataTable().ajax.reload(null, false); // stays on same page
+                                $('#patientTable').DataTable().ajax.reload(null, false);
                             } else {
                                 Swal.fire('Error!', res.message, 'error');
                             }
@@ -186,6 +189,5 @@
                 }
             });
         }
-
     </script>
 }

@@ -42,10 +42,11 @@ namespace HospitalManagement.Models
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Payment Date")]
-        public DateTime? PaymentDate { get; set; }
+        public DateTime PaymentDate { get; set; }
 
         [MaxLength(50)]
-        [Display(Name = "Invest Number")]
-        public string InvestNumber { get; set; }
+        [Display(Name = "Invoice Number")]
+        public string InvoiceNumber { get; set; }
+
     }
 }
