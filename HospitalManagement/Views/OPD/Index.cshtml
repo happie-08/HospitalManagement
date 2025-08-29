@@ -39,13 +39,14 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Patient</th>
-                                            <th>Doctor</th>
+                                            <th>Invoice Number</th>
+                                            <th>Payment Date</th>
+                                            <th>Patient Name</th>
+                                            <th>Doctor Name</th>
                                             <th>Diagnosis</th>
                                             <th>Symptom</th>
                                             <th>Amount</th>
-                                            <th>Payment Date</th>
-                                            <th>InvoiceNumber</th>
+                                            
                                             <th style="width: 150px;">Actions</th>
                                         </tr>
                                     </thead>
@@ -91,6 +92,16 @@
                                 return meta.row + 1;
                             }
                         },
+                        { data: 'invoiceNumber' },
+                        
+                        {
+                            data: 'paymentDate',
+                            render: function (data) {
+                                if (!data) return "-";
+                                var d = new Date(data);
+                                return d.toLocaleDateString('en-GB'); // dd/MM/yyyy
+                            }
+                        },
                         { data: 'patientName' },
                         { data: 'doctorName' },
                         { data: 'diagnosisName' },
@@ -101,15 +112,6 @@
                                 return data ? data : "-";
                             }
                         },
-                        {
-                            data: 'paymentDate',
-                            render: function (data) {
-                                if (!data) return "-";
-                                var d = new Date(data);
-                                return d.toLocaleDateString('en-GB'); // dd/MM/yyyy
-                            }
-                        },
-                        { data: 'invoiceNumber' },
                         {
                             data: 'id',
                             render: function (data, type, row) {
@@ -124,7 +126,8 @@
                             },
                             orderable: false,
                             searchable: false
-                        }
+                        },
+                                                
                     ],
                     responsive: true,
                     pageLength: 10,

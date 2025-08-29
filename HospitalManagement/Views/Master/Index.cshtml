@@ -57,6 +57,7 @@
     <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
     <style>
         .btn-success {
             background-color: #1ab394;
@@ -88,6 +89,7 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
@@ -155,20 +157,33 @@
                     { extend: 'pdf', title: 'MasterList' }
                 ]
             });
-            $('#typeFilterContainer').html(`
-                <label for="typeFilter" class="mr-2 my-auto">Filter by Type: </label>
-                <select id="typeFilter" class="form-control form-control-sm" style="width: 180px;">
+                            $('#typeFilterContainer').html(`
+            <div class="d-flex align-items-center mb-3">
+                <label for="typeFilter" class="me-2 mb-0 fw-semibold">Filter by Type:</label>
+                <select id="typeFilter" class="form-select form-select-sm" style="width: 200px;">
                     <option value="">All</option>
                     <option value="Symptoms">Symptoms</option>
                     <option value="Diagnosis">Diagnosis</option>
+                    <option value="Charges">Charges</option>
                 </select>
-            `);
-            $('#typeFilter').on('change', function () {
-                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                table.column(2)  // index of Type column
-                    .search(val ? '^' + val + '$' : '', true, false)
-                    .draw();
-            });
+            </div>
+        `);
+
+        // Initialize Select2
+        $('#typeFilter').select2({
+            placeholder: "Select Type",
+            allowClear: true,
+            width: 'resolve'
+        });
+
+        // Apply filter on change
+        $('#typeFilter').on('change', function () {
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            table.column(2)  // index of Type column
+                .search(val ? '^' + val + '$' : '', true, false)
+                .draw();
+        });
+
         });
  
         function deleteMaster(id, name) {

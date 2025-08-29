@@ -94,7 +94,6 @@
         }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 }
 
 <section class="content" style="height: calc(100vh - 100px); overflow-y:auto;">
@@ -197,6 +196,17 @@
                             <span asp-validation-for="ReferenceDoctorId" class="text-danger"></span>
                         </div>
 
+                        <!-- New Dropdown for Type -->
+                        <div class="col-md-6 mb-3">
+                            <label>Type</label>
+                            <select class="form-select select2" name="Type">
+                                <option value="">-- Select Type --</option>
+                                <option value="Diagnosis">Diagnosis</option>
+                                <option value="Symptoms">Symptoms</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
                         <div class="col-md-12 mb-3">
                             <label>Address <span class="text-danger">*</span></label>
                             <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter full address"></textarea>
@@ -240,7 +250,8 @@
                 reader.readAsDataURL(file);
             }
         }
-         $(document).ready(function () {
+
+        $(document).ready(function () {
             $(".select2").select2({
                 theme: "classic",
                 placeholder: "Select an option",

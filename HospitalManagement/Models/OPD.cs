@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Numerics;
 
 namespace HospitalManagement.Models
 {
@@ -20,19 +20,14 @@ namespace HospitalManagement.Models
         [Required]
         [Display(Name = "Doctor")]
         public int DoctorId { get; set; }
-
         [ForeignKey("DoctorId")]
         public ReferenceDoctor Doctor { get; set; }
 
-        [Display(Name = "Diagnosis")]
-        public int? DiagnosisId { get; set; }
-        [ForeignKey("DiagnosisId")]
-        public Master Diagnosis { get; set; }
+        // ✅ Many-to-Many for Diagnosis
+        public List<OPDDiagnosis> OPDDiagnoses { get; set; } = new List<OPDDiagnosis>();
 
-        [Display(Name = "Symptom")]
-        public int? SymptomId { get; set; }
-        [ForeignKey("SymptomId")]
-        public Master Symptom { get; set; }
+        // ✅ Many-to-Many for Symptom
+        public List<OPDSymptom> OPDSymptoms { get; set; } = new List<OPDSymptom>();
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
@@ -47,6 +42,23 @@ namespace HospitalManagement.Models
         [MaxLength(50)]
         [Display(Name = "Invoice Number")]
         public string InvoiceNumber { get; set; }
+    }
 
+    public class OPDDiagnosis
+    {
+        public int OPDId { get; set; }
+        public OPD OPD { get; set; }
+
+        public int DiagnosisId { get; set; }
+        public Master Diagnosis { get; set; }
+    }
+
+    public class OPDSymptom
+    {
+        public int OPDId { get; set; }
+        public OPD OPD { get; set; }
+
+        public int SymptomId { get; set; }
+        public Master Symptom { get; set; }
     }
 }
