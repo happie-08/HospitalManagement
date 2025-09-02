@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "OPD Report";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="page-inner">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <h4 class="mb-0 page-title">OPD Report</h4>
+                <ul class="breadcrumbs mb-0 d-flex align-items-center">
+                    <li class="nav-home">
+                        <a asp-controller="Dashboard" asp-action="Index">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                    <li class="nav-item"><a href="#">Reports</a></li>
+                    <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                    <li class="nav-item"><a href="#">OPD Report</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="fw-semibold">Doctor</label>
+                <select id="doctorFilter" class="form-select form-select-sm">
+                    <option value="">All Doctors</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-semibold">Patient</label>
+                <select id="patientFilter" class="form-select form-select-sm">
+                    <option value="">All Patients</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-semibold">Payment Date Range</label>
+                <input type="text" id="dateRange" class="form-control form-control-sm" placeholder="Select date range" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button id="searchBtn" class="btn btn-success btn-sm w-50">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button id="resetBtn" class="btn btn-secondary btn-sm w-50">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="opdReportTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Patient Name</th>
+                                        <th>Doctor Name</th>
+                                        <th>Payment Date</th>
+                                        <th>Amount</th>
+                                        <th>Invoice No.</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-end">Total:</th>
+                                        <th id="totalAmount">0</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Load dropdown data
+            $.get('/Report/GetOPDFilters', function (data) {
+                data.doctors.forEach(function (doctor) {
+                    $('#doctorFilter').append(`<option value="${doctor.id}">${doctor.name}</option>`);
+                });
+                data.patients.forEach(function (patient) {
+                    $('#patientFilter').append(`<option value="${patient.id}">${patient.fullName}</option>`);
+                });
+                $('#doctorFilter, #patientFilter').select2({ width: '100%' });
+            });
+
+            // Initialize Date Range Picker with predefined ranges
+            $('#dateRange').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD-MM-YYYY',
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            });
+
+            $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
+            });
+
+            $('#dateRange').on('cancel.daterangepicker', function () {
+                $(this).val('');
+            });
+
+            // Initialize DataTable
+            var table = $('#opdReportTable').DataTable({
+                ajax: {
+                    url: '/Report/GetOPDReportData',
+                    data: function (d) {
+                        d.doctorId = $('#doctorFilter').val();
+                        d.patientId = $('#patientFilter').val();
+                        d.dateRange = $('#dateRange').val();
+                    }
+                },
+                columns: [
+                    { data: null, render: function (data, type, row, meta) { return meta.row + 1; } },
+                    { data: 'patientName' },
+                    { data: 'doctorName' },
+                    { data: 'paymentDate' },
+                    { data: 'amount' },
+                    { data: 'invoiceNumber' }
+                ],
+                responsive: true,
+                pageLength: 10,
+                dom: '<"row align-items-center mb-3"<"col-md-6"l><"col-md-6 d-flex justify-content-end"fB>>rtip',
+                buttons: [
+                    { extend: 'excel', title: 'OPDReport' },
+                    { extend: 'pdf', title: 'OPDReport' }
+                ],
+                footerCallback: function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Calculate total for current page
+                    var pageTotal = api
+                        .column(4, { page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return parseFloat(a) + parseFloat(b);
+                        }, 0);
+
+                    // Update footer
+                    $(api.column(4).footer()).html(pageTotal.toFixed(2));
+                }
+
+            });
+
+            // Reload on Search button click
+            $('#searchBtn').on('click', function (e) {
+                e.preventDefault();
+                table.ajax.reload();
+            });
+
+            // Reset filters
+            $('#resetBtn').on('click', function (e) {
+                e.preventDefault();
+                $('#doctorFilter').val('').trigger('change');
+                $('#patientFilter').val('').trigger('change');
+                $('#dateRange').val('');
+                table.ajax.reload();
+            });
+        });
+    </script>
+}
