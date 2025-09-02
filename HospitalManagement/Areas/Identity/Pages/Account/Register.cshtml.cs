@@ -1,5 +1,4 @@
-﻿
-using HospitalManagement.Models;
+﻿using HospitalManagement.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -88,10 +87,11 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-                // Generate a valid username from email or name without spaces/symbols
-                var validUsername = Input.Email.Split('@')[0]; // OR use Regex to clean Input.Name
-                await _userStore.SetUserNameAsync(user, validUsername, CancellationToken.None);
+
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                user.Name = Input.Name;
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -99,24 +99,20 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code },
+                        values: new { area = "Identity", userId = user.Id, code = code },
                         protocol: Request.Scheme);
 
-                    if (!string.IsNullOrEmpty(callbackUrl))
-                    {
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-                    }
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"<p>Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.</p>");
 
-                    // 🔁 Redirect to confirmation page instead of login
-                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
+                    // ✅ Instead of showing RegisterConfirmation page, redirect to Login page
+                    return RedirectToPage("/Account/Login");
                 }
 
                 foreach (var error in result.Errors)
@@ -125,7 +121,6 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
 
@@ -138,8 +133,7 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
             catch
             {
                 throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
             }
         }
 

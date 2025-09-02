@@ -2,11 +2,11 @@ using HospitalManagement.Data;
 using HospitalManagement.Models;
 using HospitalManagement.Repository;
 using HospitalManagement.Repository.Interfaces;
-using HospitalManagement.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using static EmailSender;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +18,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.Configure<SendGridOptions>(
-    builder.Configuration.GetSection("SendGrid"));  // This must match the section name in appsettings.json
-
+builder.Services.Configure<SendGridSettings>(builder.Configuration.GetSection("SendGrid"));
 builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
-
-
 // ? Add Identity with Roles support
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {

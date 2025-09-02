@@ -32,9 +32,9 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
         [TempData]
         public string StatusMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string userId, string email, string code)
+        public async Task<IActionResult> OnGetAsync(string userId, string code)
         {
-            if (userId == null || email == null || code == null)
+            if (userId == null || code == null)
             {
                 return RedirectToPage("/Index");
             }
@@ -46,25 +46,16 @@ namespace HospitalManagement.Areas.Identity.Pages.Account
             }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ChangeEmailAsync(user, email, code);
-            if (!result.Succeeded)
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            if (result.Succeeded)
             {
-                StatusMessage = "Error changing email.";
-                return Page();
+                // ✅ Redirect user to Login after successful confirmation
+                return RedirectToPage("/Account/Login");
             }
 
-            // In our UI email and user name are one and the same, so when we update the email
-            // we need to update the user name.
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, email);
-            if (!setUserNameResult.Succeeded)
-            {
-                StatusMessage = "Error changing user name.";
-                return Page();
-            }
-
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Thank you for confirming your email change.";
             return Page();
         }
+
     }
 }
