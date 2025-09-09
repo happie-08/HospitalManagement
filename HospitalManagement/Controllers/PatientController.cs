@@ -58,10 +58,12 @@ namespace HospitalManagement.Controllers
         public IActionResult Create()
         {
             ViewBag.IsEdit = false;
-         
+
             ViewBag.ReferenceDoctorId = new SelectList(_context.ReferenceDoctors
-                .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
-                .ToList(), "Id", "FullName");
+             .Where(d => d.Active) // only active doctors
+             .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
+             .ToList(), "Id", "FullName");
+
             var patient = new Patient { Gender = "Female" };
             return View(patient);
         }
@@ -103,8 +105,9 @@ namespace HospitalManagement.Controllers
 
             ViewBag.IsEdit = true;
             ViewBag.ReferenceDoctorId = new SelectList(_context.ReferenceDoctors
-                .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
-                .ToList(), "Id", "FullName", patient.ReferenceDoctorId);
+             .Where(d => d.Active) // only active doctors
+             .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
+             .ToList(), "Id", "FullName", patient.ReferenceDoctorId);
 
             return View("Create", patient); // Reuse Create view
         }

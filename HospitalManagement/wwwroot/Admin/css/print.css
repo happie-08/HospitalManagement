@@ -1,0 +1,46 @@
+﻿@media print {
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 14px;
+    }
+
+    /* Hide UI elements */
+    .no-print,
+    .main-header,
+    .main-sidebar,
+    .footer,
+    .page-title,
+    .breadcrumbs {
+        display: none !important;
+    }
+
+    /* Full-width invoice */
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    .card-header, .card-body, .card-footer {
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    th {
+        background: #f8f9fa;
+    }
+}

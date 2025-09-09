@@ -121,8 +121,10 @@
             });
 
             // Initialize Date Range Picker with predefined ranges
-            $('#dateRange').daterangepicker({
-                autoUpdateInput: false,
+                    $('#dateRange').daterangepicker({
+                autoUpdateInput: true, // Automatically update the input
+                startDate: moment().subtract(6, 'days'), // 7 days including today
+                endDate: moment(),
                 locale: {
                     format: 'DD-MM-YYYY',
                     cancelLabel: 'Clear'
@@ -136,6 +138,7 @@
                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 }
             });
+
 
             $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
                 $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));

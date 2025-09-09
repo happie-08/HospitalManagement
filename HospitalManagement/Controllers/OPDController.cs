@@ -1,5 +1,6 @@
 ﻿using HospitalManagement.Data;
 using HospitalManagement.Models;
+using HospitalManagement.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,7 @@ namespace HospitalManagement.Controllers
 
             ViewBag.Doctors = new SelectList(
                 await _context.ReferenceDoctors
+                    .Where(d => d.Active)
                     .Select(d => new { d.Id, FullName = d.FirstName + " " + d.LastName })
                     .ToListAsync(),
                 "Id",
@@ -227,21 +229,51 @@ namespace HospitalManagement.Controllers
 
             return Json(new { data = opdList });
         }
-
-        // ================== Generate Invoice Number ==================
         private async Task<string> GenerateInvoiceNumber()
         {
-            var lastOpd = await _context.OPDs.OrderByDescending(o => o.Id).FirstOrDefaultAsync();
+            var lastInvoice = await _context.OPDs
+                .OrderByDescending(o => o.Id)
+                .Select(o => o.InvoiceNumber)
+                .FirstOrDefaultAsync();
+
             int nextNumber = 1;
 
-            if (lastOpd != null && !string.IsNullOrEmpty(lastOpd.InvoiceNumber))
+            if (!string.IsNullOrEmpty(lastInvoice))
             {
-                var numberPart = lastOpd.InvoiceNumber.Replace("NP", "");
+                var numberPart = lastInvoice.Split('-').Last();
                 if (int.TryParse(numberPart, out int lastNumber))
+                {
                     nextNumber = lastNumber + 1;
+                }
             }
 
-            return "NP" + nextNumber;
+            return $"NP{nextNumber.ToString("D0")}"; // Example: INV-0001
         }
+        [HttpGet]
+        public async Task<IActionResult> Invoice(int id)
+        {
+            var opd = await _context.OPDs
+                .Include(o => o.Patient)
+                .Include(o => o.Doctor)
+                .Include(o => o.OPDDiagnoses).ThenInclude(d => d.Diagnosis)
+                .Include(o => o.OPDSymptoms).ThenInclude(s => s.Symptom)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (opd == null) return NotFound();
+
+            var viewModel = new OPDInvoiceViewModel
+            {
+                InvoiceNumber = opd.InvoiceNumber,
+                PaymentDate = opd.PaymentDate,
+                PatientName = opd.Patient != null ? (opd.Patient.FirstName + " " + opd.Patient.LastName).Trim() : "",
+                DoctorName = opd.Doctor != null ? (opd.Doctor.FirstName + " " + opd.Doctor.LastName).Trim() : "",
+                DiagnosisName = opd.OPDDiagnoses.Any() ? string.Join(", ", opd.OPDDiagnoses.Select(d => d.Diagnosis.Name)) : "",
+                SymptomName = opd.OPDSymptoms.Any() ? string.Join(", ", opd.OPDSymptoms.Select(s => s.Symptom.Name)) : "",
+                Amount = opd.Amount
+            };
+
+            return View(viewModel);
+        }
+
     }
 }

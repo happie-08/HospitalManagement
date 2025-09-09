@@ -26,7 +26,7 @@ namespace HospitalManagement.Controllers
         [HttpGet("GetOPDFilters")]
         public IActionResult GetOPDFilters()
         {
-            var doctors = _context.ReferenceDoctors
+            var doctors = _context.ReferenceDoctors.Where(d => d.Active)
                 .Select(d => new
                 {
                     id = d.Id,

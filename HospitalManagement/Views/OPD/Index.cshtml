@@ -51,6 +51,14 @@
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="7" class="text-end">Total:</th>
+                                        <th></th> <!-- This is where the sum will appear -->
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+
                                 </table>
                             </div>
                         </div>
@@ -119,6 +127,9 @@
                                     <a href="/OPD/Edit/${data}" class="btn btn-info btn-sm">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
+                                    <a href="/OPD/Invoice/${data}" class="btn btn-primary btn-sm" target="_blank">
+                                        <i class="fas fa-file-invoice"></i> Invoice
+                                    </a>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deleteOPD('${data}')">
                                         <i class="fas fa-trash-alt"></i> Delete
                                     </button>
@@ -138,7 +149,21 @@
                     buttons: [
                         { extend: 'excel', title: 'OPDList' },
                         { extend: 'pdf', title: 'OPDList' }
-                    ]
+                    ],
+                        footerCallback: function (row, data, start, end, display) {
+            var api = this.api();
+
+            // Calculate total over all pages
+            var total = api
+                .column(7) // Amount column index (0-based)
+                .data()
+                .reduce(function (a, b) {
+                    return Number(a) + (Number(b) || 0);
+                }, 0);
+
+            // Update footer
+            $(api.column(7).footer()).html(total.toFixed(2));
+        }
                 });
             });
 
