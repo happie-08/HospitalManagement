@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HospitalManagement.Models
 {
@@ -28,7 +29,13 @@ namespace HospitalManagement.Models
 
         [EmailAddress]
         public string Email { get; set; }
+        public string? Image { get; set; }
+
 
         public bool Active { get; set; }
+
+        [Display(Name = "Department")]
+        public int DepartmentId { get; set; }
+        public Department Department { get; set; }
     }
 }

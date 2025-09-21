@@ -12,6 +12,15 @@
             height: auto;
         }
 
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1ab394;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
         .content {
             padding: 30px;
             min-height: calc(100vh - 80px);
@@ -34,6 +43,22 @@
             align-items: center;
         }
 
+        .btn-upload {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            color: #fff;
+            background-color: #1ab394;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .btn-upload:hover {
+                background-color: #17a085;
+            }
         .btn-success {
             background-color: #1ab394;
             border: none;
@@ -80,12 +105,21 @@
                 </a>
             </div>
             <div class="card-body">
-                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" novalidate>
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" enctype="multipart/form-data" novalidate>
                     @Html.AntiForgeryToken()
                     @if (isEdit)
                     {
                         @Html.HiddenFor(m => m.Id)
                     }
+                    <div class="text-center mb-3">
+                        <img src="@Url.Content(string.IsNullOrEmpty(Model?.Image) ? "~/uploads/user.png" : Model.Image)"
+                             id="profilePreview" class="profile-img" alt="Profile Image" />
+                        <label class="btn-upload">
+                            <i class="fas fa-upload"></i> @(isEdit ? "Change Image" : "Upload Image")
+                            <input type="file" name="ImageFile" accept="image/*" hidden onchange="previewImage(this)" />
+                        </label>
+                    </div>
+
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -111,6 +145,13 @@
                             <input asp-for="Degree" class="form-control" placeholder="e.g. MBBS, MD" />
                             <span asp-validation-for="Degree" class="text-danger"></span>
                         </div>
+                         <div class="col-md-6 mb-3">
+                            <label>Department <span class="text-danger">*</span></label>
+                            <select asp-for="DepartmentId" class="form-control" asp-items="@(new SelectList(ViewBag.Departments, "Id", "DepartmentName"))">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                        </div> 
 
                         <div class="col-md-6 mb-3">
                             <label>Contact No <span class="text-danger">*</span></label>
@@ -154,4 +195,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+                function previewImage(input) {
+                    const file = input.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.getElementById('profilePreview').src = e.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                }
+    </script>
+}
+
 }

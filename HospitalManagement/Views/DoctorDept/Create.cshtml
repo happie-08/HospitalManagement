@@ -1,0 +1,128 @@
+﻿@model HospitalManagement.Models.Department
+@{
+    bool isEdit = ViewBag.IsEdit ?? false;
+    ViewData["Title"] = isEdit ? "Edit Department" : "Add Department";
+    Layout = "~/Views/Shared/_NavbarLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        html, body {
+            background-color: #f1f4f6;
+            height: auto;
+        }
+
+        .content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .card {
+            margin: 2rem auto;
+            max-width: 900px;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #1ab394, #16a085);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-success {
+            background-color: #1ab394;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 20px;
+            padding: 6px 20px;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+        }
+
+        label {
+            font-weight: 500;
+        }
+    </style>
+}
+
+<section class="content" style="height: calc(100vh - 100px); overflow-y: auto;">
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        <div class="page-header mb-3">
+            <h4 class="page-title">@ViewData["Title"]</h4>
+            <ul class="breadcrumbs">
+                <li class="nav-home"><a asp-controller="Dashboard" asp-action="Index"><i class="fas fa-home"></i></a></li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a asp-controller="DoctorDept" asp-action="Index">Departments</a></li>
+                <li class="separator"><i class="fas fa-chevron-right"></i></li>
+                <li class="nav-item"><a href="#">@ViewData["Title"]</a></li>
+            </ul>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="card-title mb-0">@ViewData["Title"]</h4>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    @if (isEdit)
+                    {
+                        @Html.HiddenFor(m => m.Id)
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Department Name <span class="text-danger">*</span></label>
+                            <input asp-for="DepartmentName" class="form-control" placeholder="Enter department name" />
+                            <span asp-validation-for="DepartmentName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Description</label>
+                            <input asp-for="Description" class="form-control" placeholder="Enter description (optional)" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check mt-4">
+                                <input asp-for="Active" class="form-check-input" type="checkbox" />
+                                <label asp-for="Active" class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success rounded-pill px-5">
+                            <i class="fas @(isEdit ? "fa-save" : "fa-plus")"></i> @(isEdit ? "Update Department" : "Add Department")
+                        </button>
+                        <button type="reset" class="btn btn-secondary rounded-pill px-4 ml-2">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

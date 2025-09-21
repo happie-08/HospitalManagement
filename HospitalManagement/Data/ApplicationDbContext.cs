@@ -16,10 +16,12 @@ namespace HospitalManagement.Data
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Master> Masters { get; set; }
         public DbSet<OPD> OPDs { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
         // ✅ New for many-to-many
         public DbSet<OPDDiagnosis> OPDDiagnoses { get; set; }
         public DbSet<OPDSymptom> OPDSymptoms { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
